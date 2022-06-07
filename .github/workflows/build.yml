@@ -21,7 +21,7 @@ jobs:
           echo "::set-output name=docker_image::${{ github.event.client_payload.image  }} "
           echo "::set-output name=origin_ref::${{ github.event.client_payload.ref  }}"
           echo "::set-output name=origin_event_name::${{ github.event.client_payload.event_name  }}"
-          echo ":set-output name=origin_project::${{ inputs.projectName }}"
+          echo "::set-output name=origin_project::${{ inputs.projectName }}"
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -29,7 +29,7 @@ jobs:
       - name: test
         run: |
           echo ${{ steps.init.origin_project }}
-          echo ${{ github.ref }}
+          echo ${{ inputs.projectName }}
         
 
 #       - name: Set up JDK 13
