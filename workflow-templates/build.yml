@@ -9,7 +9,7 @@ on:
     
 jobs:
   call-workflow-passing-data:
-    uses: One-Creation/.github/workflows/build.yml@main
+    uses: One-Creation/.github/.github/workflows/build.yml@main
     with:
       projectName: ${{ github.event.repository.name }}
       secrets: inherit
