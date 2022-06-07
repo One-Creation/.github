@@ -28,7 +28,8 @@ jobs:
       
       - name: test
         run: |
-          echo ${{ steps.init.origin_project }}
+          echo "here"
+          echo ${{ steps.init.outputs.origin_project }}
           echo ${{ inputs.projectName }}
         
 
@@ -111,6 +112,6 @@ jobs:
         with:
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}
           event-type: e2e-event
-          repository: "onecreation/${{ steps.init.origin_project }}"
+          repository: onecreation/${{ steps.init.outputs.origin_project }}
           client-payload: '{"ref": "${{ github.ref }}", "image": "${{  steps.docker_gen.outputs.docker_image }}", "tag": "${{  steps.docker_gen.outputs.docker_tag }}", "ref": "${{ github.ref }}", "event_name": "${{ github.event_name }}"}'
         
