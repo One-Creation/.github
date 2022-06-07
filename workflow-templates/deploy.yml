@@ -1,0 +1,15 @@
+name: Deploy Onecreation Microservice
+
+on:
+  repository_dispatch:
+    types:
+      - deploy-event
+
+jobs:
+  call-onecreation-deploy:
+    uses: onecreation/.github/workflows/deploy.yml@main
+    with:
+      projectName: ${{ github.event.repository.name }}
+      secrets: inherit
+
+    
