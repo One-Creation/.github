@@ -1,15 +1,13 @@
-name: Build Microservice
+name: Deploy One-Creation Microservice
 
 on:
-  push:
-    branches: [ $default-branch ]
-  pull_request:
-    types: [opened, synchronize, reopened]
-    
-    
+  repository_dispatch:
+    types:
+      - deploy-event
+
 jobs:
-  call-workflow-passing-data:
-    uses: onecreation/.github/workflows/build.yml@main
+  call-onecreation-deploy:
+    uses: onecreation/.github/workflows/deploy.yml@main
     with:
       projectName: ${{ github.event.repository.name }}
       secrets: inherit
