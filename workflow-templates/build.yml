@@ -1,4 +1,4 @@
-name: Octo Organization CI
+name: Build Microservice
 
 on:
   push:
