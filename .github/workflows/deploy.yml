@@ -1,10 +1,9 @@
-on:
+  on:
   workflow_call:
     inputs:
       projectName:
         required: true
         type: string
-        
 jobs:
   build:
     name: Deploy
