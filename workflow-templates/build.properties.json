@@ -1,5 +1,5 @@
 {
-    "name": "Build Workflow for one Creation",
+    "name": "Build One-Creation Service",
     "description": "Build the service and generate a docker",
     "categories": [
         "Java"
