@@ -7,7 +7,7 @@ on:
 
 
 jobs:
-  call-onecreation-deploy:
+  one-creation-deploy:
     uses: One-Creation/.github/.github/workflows/deploy.yml@main
     with:
       projectName: ${{ github.event.repository.name }}
