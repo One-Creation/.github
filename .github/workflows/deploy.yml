@@ -1,17 +1,27 @@
-  on:
+on:
   workflow_call:
     inputs:
       projectName:
         required: true
         type: string
+        
 jobs:
   build:
     name: Deploy
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      contents: read
+      contents: read      
     steps:
+      - name: Initialization
+        id: init
+        #We set the values in the output to be able to use them later
+        run: |
+          echo "::set-output name=docker_tag::${{ github.event.client_payload.tag  }}"
+          echo "::set-output name=docker_image::${{ github.event.client_payload.image  }} "
+          echo "::set-output name=origin_ref::${{ github.event.client_payload.ref  }}"
+          echo "::set-output name=origin_event_name::${{ github.event.client_payload.event_name  }}"
+          echo ":set-output name=origin_project::${{ inputs.projectName }}"    
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
