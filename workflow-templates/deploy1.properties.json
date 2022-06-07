@@ -1,0 +1,12 @@
+{
+    "name": "Build Workflow for one Creation",
+    "description": "Build the service and generate a docker",
+    "categories": [
+        "Java"
+    ],
+    "filePatterns": [
+        "package.json$",
+        "^Dockerfile",
+        ".*\\.md$"
+    ]
+}
