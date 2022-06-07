@@ -1,7 +1,0 @@
-{
-    "name": Deploy Workflow for one Creation",
-    "description": "Deploy a closed version of the microservice in dev",
-    "categories": [
-        "Java"
-    ]
-}
