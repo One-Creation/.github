@@ -40,4 +40,4 @@ jobs:
       - name: test
         run: |
           echo {{ inputs.projectName }}
-          echo {{ github.ref  }}
+          echo {{ steps.init.outputs.origin_project }}
