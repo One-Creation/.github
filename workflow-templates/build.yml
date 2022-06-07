@@ -8,7 +8,7 @@ on:
     
     
 jobs:
-  call-workflow-passing-data:
+  one-creation-build:
     uses: One-Creation/.github/.github/workflows/build.yml@main
     with:
       projectName: ${{ github.event.repository.name }}
