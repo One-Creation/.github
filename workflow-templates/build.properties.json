@@ -1,9 +1,8 @@
 {
-    "name": "Octo Organization Workflow",
-    "description": "Octo Organization CI starter workflow.",
-    "iconName": "example-icon",
+    "name": "Build Workflow for one Creation",
+    "description": "Build the service and generate a docker",
     "categories": [
-        "Go"
+        "Java"
     ],
     "filePatterns": [
         "package.json$",
