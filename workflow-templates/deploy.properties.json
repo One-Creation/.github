@@ -1,5 +1,5 @@
 {
-    "name": "Deploy Onecreation service",
+    "name": "Deploy One-Creation service",
     "description": "Close a version of the service and deploy it to Int",
     "categories": [
         "Java"
