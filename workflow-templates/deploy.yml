@@ -5,6 +5,7 @@ on:
     types:
       - deploy-event
 
+
 jobs:
   call-onecreation-deploy:
     uses: One-Creation/.github/.github/workflows/deploy.yml@main
