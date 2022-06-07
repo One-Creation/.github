@@ -1,6 +1,6 @@
 {
-    "name": "Build Workflow for one Creation",
-    "description": "Build the service and generate a docker",
+    "name": "Deploy Onecreation service",
+    "description": "Close a version of the service and deploy it to Int",
     "categories": [
         "Java"
     ],
