@@ -3,10 +3,5 @@
     "description": "Deploy a closed version of the microservice in dev",
     "categories": [
         "Java"
-    ],
-    "filePatterns": [
-        "package.json$",
-        "^Dockerfile",
-        ".*\\.md$"
     ]
 }
