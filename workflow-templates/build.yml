@@ -12,4 +12,4 @@ jobs:
     uses: One-Creation/.github/.github/workflows/build.yml@main
     with:
       projectName: ${{ github.event.repository.name }}
-      secrets: inherit
+    secrets: inherit
