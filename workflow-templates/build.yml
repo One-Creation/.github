@@ -4,14 +4,12 @@ on:
   push:
     branches: [ $default-branch ]
   pull_request:
-    branches: [ $default-branch ]
-
+    types: [opened, synchronize, reopened]
+    
+    
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Run a one-line script
-        run: echo Hello from Octo Organization
+  call-workflow-passing-data:
+    uses: onecreation/.github/workflows/build.yml@main
+    with:
+      projectName: ${{ github.event.repository.name }}
+      secrets: inherit
