@@ -92,7 +92,7 @@ jobs:
           PROJECT_VERSION_BUILD="$PROJECT_VERSION"
           aws ecr get-login-password --region eu-central-1 | docker login 307126822414.dkr.ecr.eu-central-1.amazonaws.com -u AWS --password-stdin
           wget -O dd-java-agent.jar 'https://github.com/DataDog/dd-trace-java/releases/download/v0.97.0/dd-java-agent.jar'
-          cp ../src/main/docker/Dockerfile DockerFile && true && cp ../Dockerfile DockerFile && true          
+          test -e ../src/main/docker/Dockerfile && cp ../src/main/docker/Dockerfile DockerFile || cp ../Dockerfile DockerFile
           docker build -t ${{ inputs.projectName}}:$PROJECT_VERSION_BUILD -f DockerFile . 
           DOCKER=307126822414.dkr.ecr.eu-central-1.amazonaws.com/one-creation/${{ inputs.projectName}}:$PROJECT_VERSION_BUILD
           docker tag ${{ inputs.projectName}}:$PROJECT_VERSION_BUILD $DOCKER
