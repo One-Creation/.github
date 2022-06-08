@@ -4,6 +4,13 @@ on:
       projectName:
         required: true
         type: string
+      projectAlias:
+        required: true
+        type: string
+      namespace:
+        required: true
+        type: string        
+                
         
 jobs:
   build:
@@ -21,10 +28,6 @@ jobs:
           echo "::set-output name=docker_image::${{ github.event.client_payload.image  }} "
           echo "::set-output name=origin_ref::${{ github.event.client_payload.ref  }}"
           echo "::set-output name=origin_event_name::${{ github.event.client_payload.event_name  }}"
-          echo "::set-output name=origin_project::${{ inputs.projectName }}"    
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Checkout One Creation Kubernetes repository
         # we only deploy if it's a merge to main branch
@@ -33,11 +36,23 @@ jobs:
         with:
           repository: One-Creation/oc-drm-kubernetes
           ref: refs/heads/master
-          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          token:  ${{ secrets.ONECREATION_PAT_TOKEN }}
           persist-credentials: false
           path: ./oc-drm-kubernetes
 
-      - name: test
+      - name: Install Microservice
+        # we only deploy if it's a merge to main branch
+        if: contains('push', steps.init.outputs.origin_event_name)
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NAMESPACE: ${{ inputs.namespace }}
         run: |
-          echo ${{ inputs.projectName }}
-          echo ${{ steps.init.outputs.origin_project }}
+          aws eks update-kubeconfig --name onecreation_eks-dev-eu-central-1 --region eu-central-1
+          kubectl config set-context --current --namespace=$NAMESPACE
+          chmod 755 install.sh
+          RELEASE_VERSION=$(ls -t -s -r ../charts/releases/values* | head -1 | cut -d '/' -f4 | sed 's/values-//' | sed 's/.yaml//')
+          export EXTERNALSET="--set tags.backend-all=false --set tags.${{ inputs.projectName }}=true --set global.namespace.enabled=true --set global.namespace.value=$NAMESPACE --set ${{ inputs.projectAlias }}.${{ inputs.projectName }}.image.tag=${{ steps.init.outputs.docker_tag }}"
+          ./install.sh $RELEASE_VERSION int ../charts/one-creation/
+        working-directory: oc-drm-kubernetes/helm/scripts
