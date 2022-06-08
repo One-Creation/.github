@@ -7,7 +7,7 @@ on:
 
 
 jobs:
-  one-creation-deploy:
+  one-creation-e2e:
     uses: One-Creation/.github/.github/workflows/e2e.yml@main
     with:
       projectName: ${{ github.event.repository.name }}
