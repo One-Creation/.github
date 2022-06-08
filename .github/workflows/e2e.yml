@@ -188,8 +188,13 @@ jobs:
       - name: Uninstall temporal data
         if: always()
         env:
-          NAMESPACE: ${{ inputs.namespace }}
-        run: kubectl delete namespace $NAMESPACE && true
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NAMESPACE: ${{ inputs.namespace }}                    
+        run: |
+          aws eks update-kubeconfig --name onecreation_eks-dev-eu-central-1 --region eu-central-1
+          kubectl delete namespace $NAMESPACE && true
         working-directory: oc-drm-test-automation
 
 
