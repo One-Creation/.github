@@ -12,5 +12,5 @@ jobs:
     with:
       projectName: ${{ github.event.repository.name }}
       projectAlias: #REPLACE_BY_HELM_CHART_ALIAS    
-      namespace: ${{ github.event.repository.name }}-${{ github.run_id }}          
+      namespace: ${{ github.run_id }}          
     secrets: inherit
