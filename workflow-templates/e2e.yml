@@ -1,0 +1,14 @@
+name: Deploy One-Creation Microservice
+
+on:
+  repository_dispatch:
+    types:
+      - e2e-event
+
+
+jobs:
+  one-creation-deploy:
+    uses: One-Creation/.github/.github/workflows/e2e.yml@main
+    with:
+      projectName: ${{ github.event.repository.name }}
+    secrets: inherit
