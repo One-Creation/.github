@@ -5,12 +5,11 @@ on:
     types:
       - e2e-event
 
-
 jobs:
   one-creation-e2e:
     uses: One-Creation/.github/.github/workflows/e2e.yml@main
     with:
       projectName: ${{ github.event.repository.name }}
       projectAlias: #REPLACE_BY_HELM_CHART_ALIAS    
-      namespace: ${{ github.run_id }}          
+      namespace: oc${{ github.run_id }}          
     secrets: inherit
