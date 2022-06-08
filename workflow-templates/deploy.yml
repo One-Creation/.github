@@ -11,4 +11,6 @@ jobs:
     uses: One-Creation/.github/.github/workflows/deploy.yml@main
     with:
       projectName: ${{ github.event.repository.name }}
+      projectAlias: #REPLACE_BY_HELM_CHART_ALIAS    
+      namespace: ${{ github.event.repository.name }}_${{ github.run_id }}        
     secrets: inherit
