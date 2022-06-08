@@ -1,0 +1,192 @@
+name: End2End Test automation run
+
+jobs:
+  build:
+    name: E2E
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 14.15.1 ]
+
+    steps:
+      - name: Initialization
+        id: init
+        #      We set the values in the output to be able to use them later
+        run: |
+          echo "::set-output name=docker_tag::${{ github.event.client_payload.tag  }}"
+          echo "::set-output name=docker_image::${{ github.event.client_payload.image  }} "
+          echo "::set-output name=origin_ref::${{ github.event.client_payload.ref  }}"
+          echo "::set-output name=origin_event_name::${{ github.event.client_payload.event_name  }}"
+      - name: Checkout Test Automation Repository
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        uses: actions/checkout@v2
+        with:
+          repository: One-Creation/oc-drm-test-automation
+          ref: refs/heads/develop
+          # GitHub's personal access token with access to `my-organization/awesome-action`
+          token: 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
+          persist-credentials: false
+          path: ./oc-drm-test-automation
+
+      - name: Checkout One Creation Kubernetes repository
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        uses: actions/checkout@v2
+        with:
+          repository: One-Creation/oc-drm-kubernetes
+          ref: refs/heads/master
+          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          persist-credentials: false
+          path: ./oc-drm-kubernetes
+
+      - name: Create namespace in dev cluster
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws eks update-kubeconfig --name onecreation_eks-dev-eu-central-1 --region eu-central-1
+          export NAMESPACE=e2etest1
+          kubectl create namespace $NAMESPACE && true
+          kubectl config set-context --current --namespace=$NAMESPACE
+
+      - name: Prepare Helm Remote Repository
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        run: helm repo add one-creation https://one-creation.s3.eu-central-1.amazonaws.com
+        env:
+          ONE_CREATION_BASE_CHART_URL: ${{ secrets.ONE_CREATION_BASE_CHART_URL }}
+
+      - name: Install Onecreation System dependencies
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          export NAMESPACE=e2etest1
+          kubectl config set-context --current --namespace=$NAMESPACE
+          helm dependency update
+          helm upgrade --install onecreation-system  . --set oc-ext-secrets.env.AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --set oc-ext-secrets.env.AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY --set oc-ext-secrets.nameOverride=oc-ext-secrets-$NAMESPACE --set oc-ext-secrets.serviceAccountName=ocextsecret-$NAMESPACE  --wait
+        working-directory: oc-drm-kubernetes/helm/environments/dev/system
+
+      - name: Install Onecreation
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          export NAMESPACE=e2etest1
+          kubectl config set-context --current --namespace=$NAMESPACE
+          chmod 755 install.sh
+          kubectl delete secret onecreationpullimage && true
+          kubectl create secret docker-registry onecreationpullimage  --docker-server=307126822414.dkr.ecr.eu-central-1.amazonaws.com --docker-username=AWS --docker-password=$(aws ecr get-login-password --region eu-central-1)
+          kubectl create clusterrolebinding system:serviceaccount:default:default --clusterrole=cluster-admin --serviceaccount=default:default && true
+          export EXTERNALSET="--set global.image.pullSecrets.enabled=true --set global.image.pullSecrets.name=onecreationpullimage --set encryption.oc-vault-helm.fullnameOverride=oc-encrypion-ms-oc-vault-$NAMESPACE --set global.namespace.enabled=true --set global.namespace.value=$NAMESPACE --set marketplace.oc-drm-marketplace.image.tag=${{ steps.init.outputs.docker_tag }}"
+          sleep 5
+          ./install.sh 1.0.20 e2e ../charts/one-creation/
+          sleep 10
+          kubectl wait pods -n $NAMESPACE -l app.kubernetes.io/name=oc-drm-daml --for condition=ContainersReady --timeout=600s && true
+          kubectl wait pods -n $NAMESPACE -l app.kubernetes.io/name=oc-drm-service --for condition=ContainersReady --timeout=300s && true
+          kubectl get pods
+        working-directory: oc-drm-kubernetes/helm/scripts
+
+      - name: Install TestAutomation Nginx
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          export NAMESPACE=e2etest1
+          kubectl config set-context --current --namespace=$NAMESPACE
+          helm dependency update
+          helm upgrade --install oc-test-automation . --wait
+        working-directory: oc-drm-kubernetes/helm/environments/genericSystemApplications/oc-test-automation/
+
+      - name: Port Forward from cluster
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          export NAMESPACE=e2etest1
+          kubectl config set-context --current --namespace=$NAMESPACE
+          kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep automation) 8080:8080&
+          kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep marketplace) 8091:8091&
+          kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep user) 8092:8091&
+        working-directory: oc-drm-test-automation
+
+      - name: Compile E2E tests
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        run: npm install
+        working-directory: oc-drm-test-automation
+
+      - name: Run E2E Sanities
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        run: yarn test:e2eSanity
+        working-directory: oc-drm-test-automation
+
+        #- name: Run E2E
+        # we only run E2E if it's a pr to main branch
+        #  if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        #  run: yarn test:e2e
+        #  working-directory: oc-drm-test-automation
+
+      - name: Get Allure history
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        uses: actions/checkout@v2
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Allure Report Generation for Automated Test Execution
+        uses: simple-elf/allure-report-action@master
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        #id: allure-report
+        with:
+          allure_results: oc-drm-test-automation/reports/allure-results
+          gh_pages: gh-pages
+          #allure_report: allure-report
+          allure_history: oc-drm-test-automation/reports/allure-history
+          keep_reports: 1
+
+      - name: Deploy report to Github Pages
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        uses: peaceiris/actions-gh-pages@v2
+        env:
+          PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISH_BRANCH: gh-pages
+          PUBLISH_DIR: oc-drm-test-automation/reports/allure-site
+
+      - name: Uninstall temporal data
+        # we only run E2E if it's a pr to main branch
+        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        run: |
+          export NAMESPACE=e2etest1
+          kubectl delete namespace $NAMESPACE && true
+        working-directory: oc-drm-test-automation
+
+
+      - name: Dispatch action to deploy project
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          event-type: deploy-event
+          client-payload: '{"ref": "${{  steps.init.outputs.origin_ref }}", "image": "${{  steps.init.outputs.docker_image }}", "tag": "${{  steps.init.outputs.docker_tag }}", "event_name": "${{ steps.init.outputs.origin_event_name }}"}'
