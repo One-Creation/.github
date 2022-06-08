@@ -31,7 +31,7 @@ jobs:
 
       - name: Checkout One Creation Kubernetes repository
         # we only deploy if it's a merge to main branch
-        if: contains('push', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_event_name, 'push')
         uses: actions/checkout@v2
         with:
           repository: One-Creation/oc-drm-kubernetes
@@ -42,7 +42,7 @@ jobs:
 
       - name: Install Microservice
         # we only deploy if it's a merge to main branch
-        if: contains('push', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_event_name, 'push')
         env:
           AWS_REGION: ${{ secrets.REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
