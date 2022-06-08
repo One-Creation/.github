@@ -25,87 +25,80 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      
-      - name: test
+    
+      - name: Set up JDK 13
+        uses: actions/setup-java@v1
+        with:
+          java-version: 13
+
+      - name: Format check
+        run: mvn fmt:check
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-duration-seconds: 1200
+          role-session-name: GitHubActionsOcDrmMarketplaceBuild
+
+      - name: Get CodeArtifact Token
+        env:
+          REGION: ${{ secrets.REGION }}
         run: |
-          echo "here"
-          echo ${{ steps.init.outputs.origin_project }}
-          echo ${{ inputs.projectName }}
-        
+          echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain onecreation --domain-owner 307126822414 --query authorizationToken --region ${{ env.REGION }} --output text)" >> $GITHUB_ENV
+      - name: Cache Maven packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('pom.xml', 'settings.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
-#       - name: Set up JDK 13
-#         uses: actions/setup-java@v1
-#         with:
-#           java-version: 13
+      - name: Build and Test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          aws s3 cp s3://com-onecreation-pipeline-resources/maven/settings.xml ~/.m2/settings.xml
+          cat  ~/.m2/settings.xml
+          mvn clean install
 
-#       - name: Format check
-#         run: mvn fmt:check
+      - name: Quality Gate
+        env:      
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          PROJECT_KEY: One-Creation_${{ inputs.projectName }}
+        run: mvn sonar:sonar -Dsonar.organization=one-creation -Dsonar.projectKey=${{ env.PROJECT_KEY }} -Dsonar.host.url=${{ env.SONAR_HOST_URL }} -Dsonar.login=${{ env.SONAR_TOKEN }}
 
-#       - name: Cache SonarCloud packages
-#         uses: actions/cache@v1
-#         with:
-#           path: ~/.sonar/cache
-#           key: ${{ runner.os }}-sonar
-#           restore-keys: ${{ runner.os }}-sonar
-
-#       - name: Configure AWS Credentials
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-region: eu-central-1
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           role-duration-seconds: 1200
-#           role-session-name: GitHubActionsOcDrmMarketplaceBuild
-
-#       - name: Get CodeArtifact Token
-#         env:
-#           DOMAIN: ${{ secrets.DOMAIN }}
-#           DOMAIN_OWNER: ${{ secrets.DOMAIN_OWNER }}
-#           REGION: ${{ secrets.REGION }}
-#         run: |
-#           echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain ${{ env.DOMAIN }} --domain-owner ${{ env.DOMAIN_OWNER }} --query authorizationToken --region ${{ env.REGION }} --output text)" >> $GITHUB_ENV
-#       - name: Cache Maven packages
-#         uses: actions/cache@v1
-#         with:
-#           path: ~/.m2
-#           key: ${{ runner.os }}-m2-${{ hashFiles('pom.xml', 'settings.xml') }}
-#           restore-keys: ${{ runner.os }}-m2
-
-#       - name: Build and Test
-#         env:
-#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-#           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#         run: mvn clean install
-
-#       - name: Quality Gate
-#         env:
-#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-#           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-#           PROJECT_KEY: ${{ secrets.PROJECT_KEY }}
-#         run: mvn sonar:sonar -Dsonar.organization=one-creation -Dsonar.projectKey=${{ env.PROJECT_KEY }} -Dsonar.host.url=${{ env.SONAR_HOST_URL }} -Dsonar.login=${{ env.SONAR_TOKEN }}
-
-#       - name: Docker generation
-#         id: docker_gen
-#         env:
-#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-#           AWS_REGION: ${{ secrets.REGION }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#         run: |
-#           aws s3 cp s3://com-onecreation-pipeline-resources/maven/settings.xml ~/.m2/settings.xml
-#           cat  ~/.m2/settings.xml
-#           PROJECT_VERSION=`mvn -f ../pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout`
-#           PROJECT_VERSION_BUILD="$PROJECT_VERSION"
-#           aws ecr get-login-password --region eu-central-1 | docker login 307126822414.dkr.ecr.eu-central-1.amazonaws.com -u AWS --password-stdin
-#           wget -O dd-java-agent.jar 'https://github.com/DataDog/dd-trace-java/releases/download/v0.97.0/dd-java-agent.jar'
-#           docker build -t oc-drm-marketplace:$PROJECT_VERSION_BUILD -f ../src/main/docker/Dockerfile .
-#           DOCKER=307126822414.dkr.ecr.eu-central-1.amazonaws.com/one-creation/oc-drm-marketplace:$PROJECT_VERSION_BUILD
-#           docker tag oc-drm-marketplace:$PROJECT_VERSION_BUILD $DOCKER
-#           docker push $DOCKER
-#           echo "::set-output name=docker_tag::$PROJECT_VERSION_BUILD"
-#           echo "::set-output name=docker_image::$DOCKER"
-#         working-directory: ./target
+      - name: Docker generation
+        id: docker_gen
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 cp s3://com-onecreation-pipeline-resources/maven/settings.xml ~/.m2/settings.xml
+          cat  ~/.m2/settings.xml
+          PROJECT_VERSION=`mvn -f ../pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout`
+          PROJECT_VERSION_BUILD="$PROJECT_VERSION"
+          aws ecr get-login-password --region eu-central-1 | docker login 307126822414.dkr.ecr.eu-central-1.amazonaws.com -u AWS --password-stdin
+          wget -O dd-java-agent.jar 'https://github.com/DataDog/dd-trace-java/releases/download/v0.97.0/dd-java-agent.jar'
+          docker build -t ${{ inputs.projectName}}:$PROJECT_VERSION_BUILD -f ../src/main/docker/Dockerfile .
+          DOCKER=307126822414.dkr.ecr.eu-central-1.amazonaws.com/one-creation/${{ inputs.projectName}}:$PROJECT_VERSION_BUILD
+          docker tag ${{ inputs.projectName}}:$PROJECT_VERSION_BUILD $DOCKER
+          docker push $DOCKER
+          echo "::set-output name=docker_tag::$PROJECT_VERSION_BUILD"
+          echo "::set-output name=docker_image::$DOCKER"
+        working-directory: ./target
 
       - name: Dispatch action to run E2E
         uses: peter-evans/repository-dispatch@v2
@@ -113,5 +106,5 @@ jobs:
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}
           event-type: e2e-event
           repository: One-Creation/${{ steps.init.outputs.origin_project }}
-          client-payload: '{"ref": "${{ github.ref }}", "image": "${{  steps.docker_gen.outputs.docker_image }}", "tag": "${{  steps.docker_gen.outputs.docker_tag }}", "ref": "${{ github.ref }}", "event_name": "${{ github.event_name }}"}'
+          client-payload: '{"ref": "${{ github.ref }}", "image": "${{  steps.docker_gen.outputs.docker_image }}", "tag": "${{  steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}"}'
         
