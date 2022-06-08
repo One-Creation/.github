@@ -140,7 +140,7 @@ jobs:
       - name: Compile E2E tests
         # we only run E2E if it's a pr to main branch
         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
-        run: npm install
+        run: npm install --force
         working-directory: oc-drm-test-automation
 
       - name: Run E2E Sanities
