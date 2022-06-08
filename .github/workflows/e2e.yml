@@ -32,7 +32,7 @@ jobs:
           echo "::set-output name=origin_event_name::${{ github.event.client_payload.event_name  }}"
       - name: Checkout Test Automation Repository
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         uses: actions/checkout@v3
         with:
           repository: One-Creation/oc-drm-test-automation
@@ -43,7 +43,7 @@ jobs:
 
       - name: Checkout One Creation Kubernetes repository
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         uses: actions/checkout@v3
         with:
           repository: One-Creation/oc-drm-kubernetes
@@ -54,7 +54,7 @@ jobs:
 
       - name: Create namespace in dev cluster
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         env:
           AWS_REGION: ${{ secrets.REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -67,13 +67,13 @@ jobs:
 
       - name: Prepare Helm Remote Repository
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         run: helm repo add one-creation ${{ secrets.ONE_CREATION_BASE_CHART_URL }}
 
 
       - name: Install Onecreation System dependencies
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         env:
           AWS_REGION: ${{ secrets.REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -87,7 +87,7 @@ jobs:
 
       - name: Install Onecreation
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         env:
           AWS_REGION: ${{ secrets.REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -110,7 +110,7 @@ jobs:
 
       - name: Install TestAutomation Nginx
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         env:
           AWS_REGION: ${{ secrets.REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -124,7 +124,7 @@ jobs:
 
       - name: Port Forward from cluster
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         env:
           AWS_REGION: ${{ secrets.REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -139,25 +139,25 @@ jobs:
 
       - name: Compile E2E tests
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         run: npm install
         working-directory: oc-drm-test-automation
 
       - name: Run E2E Sanities
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         run: yarn test:e2eSanity
         working-directory: oc-drm-test-automation
 
         #- name: Run E2E
         # we only run E2E if it's a pr to main branch
-        #  if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         #  run: yarn test:e2e
         #  working-directory: oc-drm-test-automation
 
       - name: Get Allure history
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         uses: actions/checkout@v2
         continue-on-error: true
         with:
@@ -167,7 +167,7 @@ jobs:
       - name: Allure Report Generation for Automated Test Execution
         uses: simple-elf/allure-report-action@master
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         #id: allure-report
         with:
           allure_results: oc-drm-test-automation/reports/allure-results
@@ -178,7 +178,7 @@ jobs:
 
       - name: Deploy report to Github Pages
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         uses: peaceiris/actions-gh-pages@v2
         env:
           PERSONAL_TOKEN: ${{ secrets.ONECREATION_PAT_TOKEN }}
@@ -187,7 +187,7 @@ jobs:
 
       - name: Uninstall temporal data
         # we only run E2E if it's a pr to main branch
-        if: contains('pull',steps.init.outputs.origin_ref) && contains('pull_request', steps.init.outputs.origin_event_name)
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         env:
           NAMESPACE: ${{ inputs.namespace }}
         run: kubectl delete namespace $NAMESPACE && true
