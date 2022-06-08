@@ -1,4 +1,7 @@
 name: End2End Test automation run
+   
+on:
+  workflow_call:
 
 jobs:
   build:
