@@ -1,0 +1,12 @@
+{
+    "name": "E2E One-Creation validation",
+    "description": "Executes an E2E test automation",
+    "categories": [
+        "Java"
+    ],
+    "filePatterns": [
+        "package.json$",
+        "^Dockerfile",
+        ".*\\.md$"
+    ]
+}
