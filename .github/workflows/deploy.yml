@@ -39,5 +39,5 @@ jobs:
 
       - name: test
         run: |
-          echo {{ inputs.projectName }}
-          echo {{ steps.init.outputs.origin_project }}
+          echo ${{ inputs.projectName }}
+          echo ${{ steps.init.outputs.origin_project }}
