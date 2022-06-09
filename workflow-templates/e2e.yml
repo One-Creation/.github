@@ -1,4 +1,4 @@
-name: Deploy One-Creation Microservice
+name: E2E One-Creation
 
 on:
   repository_dispatch:
