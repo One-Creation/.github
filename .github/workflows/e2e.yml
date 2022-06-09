@@ -193,7 +193,7 @@ jobs:
            echo "-------------------------------"
            curl -o allure-2.14.0.tgz -Ls https://github.com/allure-framework/allure2/releases/download/2.14.0/allure-2.14.0.tgz
            tar -zxvf allure-2.14.0.tgz -C /opt/
-           ln -s /opt/allure-2.14.0/bin/allure /usr/bin/allure
+           sudo ln -s /opt/allure-2.14.0/bin/allure /usr/bin/allure
            allure --version
            echo "Regenerating Allure website..."
            yarn allureGenerate
