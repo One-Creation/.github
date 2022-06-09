@@ -179,10 +179,10 @@ jobs:
       - name: Deploy report to Github Pages
         # we only run E2E if it's a pr to main branch
         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
-        uses: peaceiris/actions-gh-pages@v2
+        uses: peaceiris/actions-gh-pages@v3
         env:
           PERSONAL_TOKEN: ${{ secrets.ONECREATION_PAT_TOKEN }}
-          PUBLISH_BRANCH: oc-drm-test-automation/reports/allure-site
+          PUBLISH_BRANCH: gh-pages
           PUBLISH_DIR: oc-drm-test-automation/reports/allure-site
 
       - name: Uninstall temporal data
