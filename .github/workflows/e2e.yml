@@ -162,7 +162,7 @@ jobs:
         continue-on-error: true
         with:
           ref: gh-pages
-          path: gh-pages
+          path: gh-pages     
 
       - name: Allure Report Generation for Automated Test Execution
         uses: simple-elf/allure-report-action@master
@@ -176,6 +176,25 @@ jobs:
           allure_history: oc-drm-test-automation/reports/allure-history
           keep_reports: 1
 
+      - name: Test Automation Reports
+        run: |
+           echo "Regenerating all the non-Allure reports..."
+           echo "> Dashboard..."
+           yarn generateDashboard
+           echo "> Test Coverage..."
+           yarn generateTestCoverageReport
+           echo "> API Coverage..."
+           yarn generateApiCoverageReport
+           echo "> Story Coverage..."
+           yarn generateStoryCoverageReport
+           echo "> Story to API Coverage..."
+           yarn generateStoryToApiReport
+           echo "...done"
+           echo "-------------------------------"
+           echo "Regenerating Allure website..."
+           yarn allureGenerate
+        working-directory: oc-drm-test-automation    
+        
       - name: Deploy report to Github Pages
         # we only run E2E if it's a pr to main branch
         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
