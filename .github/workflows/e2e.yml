@@ -219,7 +219,7 @@ jobs:
           NAMESPACE: ${{ inputs.namespace }}                    
         run: |
           aws eks update-kubeconfig --name onecreation_eks-dev-eu-central-1 --region eu-central-1 && true
-          kubectl delete namespace $NAMESPACE && true
+          kubectl delete namespace $NAMESPACE --ignore-not-found
 
       - name: Dispatch action to deploy project
         uses: peter-evans/repository-dispatch@v2
