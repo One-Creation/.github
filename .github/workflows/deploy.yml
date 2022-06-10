@@ -53,6 +53,6 @@ jobs:
           kubectl config set-context --current --namespace=$NAMESPACE
           chmod 755 install.sh
           RELEASE_VERSION=$(ls -t -s -r ../charts/releases/values* | head -1 | cut -d '/' -f4 | sed 's/values-//' | sed 's/.yaml//')
-          export EXTERNALSET="--set tags.backend-all=false --set tags.${{ inputs.projectName }}=true --set global.namespace.enabled=true --set global.namespace.value=$NAMESPACE --set ${{ inputs.projectAlias }}.${{ inputs.projectName }}.image.tag=${{ steps.init.outputs.docker_tag }}"
+          export EXTERNALSET="--set ${{ inputs.projectAlias }}.${{ inputs.projectName }}.image.tag=${{ steps.init.outputs.docker_tag }}"
           ./install.sh $RELEASE_VERSION int ../charts/one-creation/
         working-directory: oc-drm-kubernetes/helm/scripts
