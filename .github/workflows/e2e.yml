@@ -177,7 +177,7 @@ jobs:
           keep_reports: 10
 
       - name: Test Automation Reports
-        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') && ${{ success() || failure() }}
+        if: ${{ contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') && (success() || failure()) }}
         run: |
            echo "Regenerating all the non-Allure reports..."
            echo "> Dashboard..."
