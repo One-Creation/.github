@@ -54,13 +54,13 @@ jobs:
         run: |
           echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain onecreation --domain-owner 307126822414 --query authorizationToken --region ${{ env.REGION }} --output text)" >> $GITHUB_ENV
 
-      - name: Format check
-        run: mvn fmt:check
-
       - name: Restore Maven cache
         uses: skjolber/maven-cache-github-action@v1
         with:
           step: restore
+
+      - name: Format check
+        run: mvn fmt:check
 
       - name: Build and Test
         env:
