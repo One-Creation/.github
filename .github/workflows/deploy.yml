@@ -48,13 +48,13 @@ jobs:
           python UpdateReleaseImages.py -r  $RELEASE_VERSION -s ${{ inputs.projectName }} -t ${{  steps.init.outputs.docker_tag  }}  
         working-directory: oc-drm-kubernetes/helm/scripts
 
-      - name: GitHub Commit & Push
+      - name: Commit Changes on Kubernetes repo
         uses: actions-js/push@v1.3
         with:
           github_token: ${{ secrets.ONECREATION_PAT_TOKEN }}
           message: Updating release details
           repository: One-Creation/oc-drm-kubernetes
-          branch: main
+          branch: master
           empty: true
           directory: oc-drm-kubernetes/helm/charts/releases
 
