@@ -51,7 +51,7 @@ jobs:
       - name: GitHub Commit & Push
         uses: actions-js/push@v1.3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.ONECREATION_PAT_TOKEN }}
           message: Updating release details
           repository: One-Creation/oc-drm-kubernetes
           branch: main
