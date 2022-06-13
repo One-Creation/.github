@@ -31,7 +31,7 @@ jobs:
         with:
           java-version: 13
           distribution: 'zulu'
-          cache: 'maven'          
+  
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
