@@ -51,6 +51,7 @@ jobs:
         working-directory: oc-drm-kubernetes/helm/scripts
 
       - name: Commit Changes on Kubernetes repo
+        if: contains(steps.init.outputs.origin_event_name, 'push')
         uses: actions-js/push@v1.3
         with:
           github_token: ${{ secrets.ONECREATION_PAT_TOKEN }}
