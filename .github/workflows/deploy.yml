@@ -49,7 +49,7 @@ jobs:
         working-directory: oc-drm-kubernetes/helm/scripts
 
       - name: Commit and push changes to kubernetes repository
-        uses: One-Creation/oc-drm-kubernetes@refs/heads/master
+        uses: One-Creation/oc-drm-kubernetes@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: Update Release information
