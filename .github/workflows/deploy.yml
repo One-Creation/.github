@@ -74,5 +74,5 @@ jobs:
           chmod 755 install.sh
           RELEASE_VERSION=$(echo "${{  steps.release-info.outputs.release_version  }}"  | sed 's/values-//' | sed 's/.yaml//')
           export EXTERNALSET="--set ${{ inputs.projectAlias }}.${{ inputs.projectName }}.image.tag=${{ steps.init.outputs.docker_tag }}"
-          echo $RELEASE_VERSION
+          ./install.sh $RELEASE_VERSION int ../charts/one-creation/
         working-directory: oc-drm-kubernetes/helm/scripts
