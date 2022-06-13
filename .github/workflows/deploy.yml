@@ -41,11 +41,13 @@ jobs:
           path: ./oc-drm-kubernetes
 
       - name: Update Release information
+        id: release-info
         # we only deploy if it's a merge to main branch
         if: contains(steps.init.outputs.origin_event_name, 'push')
         run: |
           RELEASE_VERSION=$(ls -t -s -r ../charts/releases/values* | head -1 | cut -d '/' -f4 )
           python UpdateReleaseImages.py -r  $RELEASE_VERSION -s ${{ inputs.projectName }} -t ${{  steps.init.outputs.docker_tag  }}  
+          echo "::set-output name=release_version::$RELEASE_VERSION"
         working-directory: oc-drm-kubernetes/helm/scripts
 
       - name: Commit Changes on Kubernetes repo
@@ -58,19 +60,19 @@ jobs:
           empty: true
           directory: oc-drm-kubernetes/helm/charts/releases
 
-#       - name: Install Microservice
-#         # we only deploy if it's a merge to main branch
-#         if: contains(steps.init.outputs.origin_event_name, 'push')
-#         env:
-#           AWS_REGION: ${{ secrets.REGION }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           NAMESPACE: ${{ inputs.namespace }}
-#         run: |
-#           aws eks update-kubeconfig --name onecreation_eks-dev-eu-central-1 --region eu-central-1
-#           kubectl config set-context --current --namespace=$NAMESPACE
-#           chmod 755 install.sh
-#           RELEASE_VERSION=$(ls -t -s -r ../charts/releases/values* | head -1 | cut -d '/' -f4 | sed 's/values-//' | sed 's/.yaml//')
-#           export EXTERNALSET="--set ${{ inputs.projectAlias }}.${{ inputs.projectName }}.image.tag=${{ steps.init.outputs.docker_tag }}"
-#           ./install.sh $RELEASE_VERSION int ../charts/one-creation/
-#         working-directory: oc-drm-kubernetes/helm/scripts
+      - name: Install Microservice
+        # we only deploy if it's a merge to main branch
+        if: contains(steps.init.outputs.origin_event_name, 'push')
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NAMESPACE: ${{ inputs.namespace }}
+        run: |
+          aws eks update-kubeconfig --name onecreation_eks-dev-eu-central-1 --region eu-central-1
+          kubectl config set-context --current --namespace=$NAMESPACE
+          chmod 755 install.sh
+          RELEASE_VERSION=$(echo "${{  steps.release-info.outputs.release_version  }}"  | sed 's/values-//' | sed 's/.yaml//')
+          export EXTERNALSET="--set ${{ inputs.projectAlias }}.${{ inputs.projectName }}.image.tag=${{ steps.init.outputs.docker_tag }}"
+          echo $RELEASE_VERSION
+        working-directory: oc-drm-kubernetes/helm/scripts
