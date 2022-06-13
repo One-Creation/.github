@@ -48,11 +48,14 @@ jobs:
           python UpdateReleaseImages.py -r -s ${{ inputs.projectName }} -t ${{  steps.init.outputs.docker_tag  }}  
         working-directory: oc-drm-kubernetes/helm/scripts
 
-#       - name: Commit and push changes to kubernetes repository
-#         uses: One-Creation/oc-drm-kubernetes@master
-#         with:
-#           github_token: ${{ secrets.GITHUB_TOKEN }}
-#           commit_message: Update Release information
+      - name: Commit and push changes to kubernetes repository
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Update release information"
+          git push
+        working-directory: oc-drm-kubernetes/helm/scripts  
 
       - name: Install Microservice
         # we only deploy if it's a merge to main branch
