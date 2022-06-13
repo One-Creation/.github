@@ -45,7 +45,7 @@ jobs:
         if: contains(steps.init.outputs.origin_event_name, 'push')
         run: |
           RELEASE_VERSION=$(ls -t -s -r ../charts/releases/values* | head -1 | cut -d '/' -f4 )
-          python UpdateReleaseImages.py -r  ${{ RELEASE_VERSION }} -s ${{ inputs.projectName }} -t ${{  steps.init.outputs.docker_tag  }}  
+          python UpdateReleaseImages.py -r  $RELEASE_VERSION -s ${{ inputs.projectName }} -t ${{  steps.init.outputs.docker_tag  }}  
         working-directory: oc-drm-kubernetes/helm/scripts
 
       - name: Commit and push changes to kubernetes repository
