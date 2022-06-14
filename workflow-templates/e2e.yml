@@ -28,5 +28,11 @@ on:
 
 jobs:
   one-creation-e2e:
-    uses: One-Creation/.github/.github/workflows/e2e.yml@main      
+    uses: One-Creation/.github/.github/workflows/e2e.yml@main    
+    with:
+      projectName: ${{inputs.projectName}}
+      projectAlias: ${{inputs.projectAlias}}
+      namespace: ${{inputs.namespace}}
+      origin_ref: ${{inputs.origin_ref}}
+      event_name: ${{inputs.event_name}}      
     secrets: inherit
