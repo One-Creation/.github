@@ -1,7 +1,28 @@
 name: End2End Test automation run
    
 on:
-  workflow_call:
+#   workflow_call:
+#     inputs:
+#       projectName:
+#         required: true
+#         type: string
+#       projectAlias:
+#         required: true
+#         type: string        
+#       namespace:
+#         required: true
+#         type: string             
+#       tag:
+#         required: true
+#         type: string  
+#       origin_ref:
+#         required: true
+#         type: string                    
+#       event_name:
+#         required: true
+#         type: string          
+
+  workflow_dispatch:
     inputs:
       projectName:
         required: true
@@ -11,7 +32,17 @@ on:
         type: string        
       namespace:
         required: true
-        type: string                
+        type: string      
+      tag:
+        required: true
+        type: string  
+      origin_ref:
+        required: true
+        type: string            
+      event_name:
+        required: true
+        type: string          
+
 jobs:
   build:
     name: E2E
@@ -26,10 +57,9 @@ jobs:
         id: init
         #      We set the values in the output to be able to use them later
         run: |
-          echo "::set-output name=docker_tag::${{ github.event.client_payload.tag  }}"
-          echo "::set-output name=docker_image::${{ github.event.client_payload.image  }} "
-          echo "::set-output name=origin_ref::${{ github.event.client_payload.ref  }}"
-          echo "::set-output name=origin_event_name::${{ github.event.client_payload.event_name  }}"
+          echo "::set-output name=docker_tag::${{ inputs.tag }}"
+          echo "::set-output name=origin_ref::${{ input.origin_ref  }}"
+          echo "::set-output name=origin_event_name::${{ intputs.event_name  }}"
       - name: Checkout Test Automation Repository
         # we only run E2E if it's a pr to main branch
         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
