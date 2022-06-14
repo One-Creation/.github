@@ -55,7 +55,7 @@ jobs:
         env:
           REGION: ${{ secrets.REGION }}
         run: |
-          echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain ${{ secrets.SONAR_DOMAIN }} --domain-owner ${{ secrets.DOMAIN_OWNER } --query authorizationToken --region ${{ env.REGION }} --output text)" >> $GITHUB_ENV
+          echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain ${{ secrets.SONAR_DOMAIN }} --domain-owner ${{ secrets.DOMAIN_OWNER }} --query authorizationToken --region ${{ env.REGION }} --output text)" >> $GITHUB_ENV
 
       - name: Restore Maven cache
         uses: skjolber/maven-cache-github-action@v1
