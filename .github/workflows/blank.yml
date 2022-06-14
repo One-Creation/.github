@@ -25,5 +25,5 @@ jobs:
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}        
           wait-for-completion: true
           display-workflow-run-url: true
-          inputs: '{ "projectName": "oc-notification", "projectAlias": "notification",  "namespace": "oc12345", "origin_ref": " ${{ github.ref }}", "tag": " ${{ steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}" }'
+          inputs: '{ "projectName": "oc-notification", "projectAlias": "notification",  "namespace": "oc12345", "origin_ref": " ${{ github.ref }}", "tag": "123", "event_name": "${{ github.event_name }}" }'
 
