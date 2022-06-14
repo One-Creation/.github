@@ -1,26 +1,26 @@
 name: End2End Test automation run
    
 on:
-#   workflow_call:
-#     inputs:
-#       projectName:
-#         required: true
-#         type: string
-#       projectAlias:
-#         required: true
-#         type: string        
-#       namespace:
-#         required: true
-#         type: string             
-#       tag:
-#         required: true
-#         type: string  
-#       origin_ref:
-#         required: true
-#         type: string                    
-#       event_name:
-#         required: true
-#         type: string          
+  workflow_call:
+    inputs:
+      projectName:
+        required: true
+        type: string
+      projectAlias:
+        required: true
+        type: string        
+      namespace:
+        required: true
+        type: string             
+      tag:
+        required: true
+        type: string  
+      origin_ref:
+        required: true
+        type: string                    
+      event_name:
+        required: true
+        type: string          
 
   workflow_dispatch:
     inputs:
