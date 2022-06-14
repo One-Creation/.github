@@ -49,13 +49,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: aws s3 cp s3://com-onecreation-pipeline-resources/maven/settings.xml ~/.m2/settings.xml
+        run: aws s3 cp s3://${{ secrets.PIPELINE_RESOURCES }}/maven/settings.xml ~/.m2/settings.xml
 
       - name: Get CodeArtifact Token
         env:
           REGION: ${{ secrets.REGION }}
         run: |
-          echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain onecreation --domain-owner 307126822414 --query authorizationToken --region ${{ env.REGION }} --output text)" >> $GITHUB_ENV
+          echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain ${{ secrets.SONAR_DOMAIN }} --domain-owner ${{ secrets.DOMAIN_OWNER } --query authorizationToken --region ${{ env.REGION }} --output text)" >> $GITHUB_ENV
 
       - name: Restore Maven cache
         uses: skjolber/maven-cache-github-action@v1
@@ -77,7 +77,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROJECT_KEY: One-Creation_${{ inputs.projectName }}
-        run: mvn sonar:sonar -Dsonar.organization=one-creation -Dsonar.projectKey=${{ env.PROJECT_KEY }} -Dsonar.host.url=${{ env.SONAR_HOST_URL }} -Dsonar.login=${{ env.SONAR_TOKEN }}
+        run: mvn sonar:sonar -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} -Dsonar.projectKey=${{ env.PROJECT_KEY }} -Dsonar.host.url=${{ env.SONAR_HOST_URL }} -Dsonar.login=${{ env.SONAR_TOKEN }}
 
       - name: Docker generation
         id: docker_gen
@@ -91,11 +91,11 @@ jobs:
           cat  ~/.m2/settings.xml
           PROJECT_VERSION=`mvn -f ../pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout`
           PROJECT_VERSION_BUILD="$PROJECT_VERSION"
-          aws ecr get-login-password --region eu-central-1 | docker login 307126822414.dkr.ecr.eu-central-1.amazonaws.com -u AWS --password-stdin
+          aws ecr get-login-password --region ${{ secrets.REGION }}| docker login ${{ secrets.DOCKER_REPO }} -u AWS --password-stdin
           wget -O dd-java-agent.jar 'https://github.com/DataDog/dd-trace-java/releases/download/v0.97.0/dd-java-agent.jar'
           test -e ../src/main/docker/Dockerfile && cp ../src/main/docker/Dockerfile DockerFile || cp ../Dockerfile DockerFile
           docker build -t ${{ inputs.projectName}}:$PROJECT_VERSION_BUILD -f DockerFile . 
-          DOCKER=307126822414.dkr.ecr.eu-central-1.amazonaws.com/one-creation/${{ inputs.projectName}}:$PROJECT_VERSION_BUILD
+          DOCKER=${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_ORGANIZATION }}/${{ inputs.projectName}}:$PROJECT_VERSION_BUILD
           docker tag ${{ inputs.projectName}}:$PROJECT_VERSION_BUILD $DOCKER
           docker push $DOCKER
           echo "::set-output name=docker_tag::$PROJECT_VERSION_BUILD"
