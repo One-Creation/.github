@@ -91,7 +91,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           NAMESPACE: ${{ inputs.namespace }}          
         run: |
-          aws eks update-kubeconfig --name onecreation_eks-dev-eu-central-1 --region eu-central-1
+          aws eks update-kubeconfig --name ${{ secrets.EKS_INT }} --region  ${{ secrets.REGION }} 
           kubectl create namespace $NAMESPACE && true
           kubectl config set-context --current --namespace=$NAMESPACE
 
