@@ -86,9 +86,7 @@ jobs:
           AWS_REGION: ${{ secrets.REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
-          aws s3 cp s3://com-onecreation-pipeline-resources/maven/settings.xml ~/.m2/settings.xml
-          cat  ~/.m2/settings.xml
+        run: |      
           PROJECT_VERSION=`mvn -f ../pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout`
           PROJECT_VERSION_BUILD="$PROJECT_VERSION"
           aws ecr get-login-password --region ${{ secrets.REGION }}| docker login ${{ secrets.DOCKER_REPO }} -u AWS --password-stdin
