@@ -4,7 +4,13 @@ on:
       projectName:
         required: true
         type: string
-        
+      projectAlias:
+        required: true
+        type: string
+      namespace:
+        required: true
+        type: string        
+   
 jobs:
   build:
     name: Build
@@ -17,10 +23,7 @@ jobs:
         id: init
         #We set the values in the output to be able to use them later
         run: |
-          echo "::set-output name=docker_tag::${{ github.event.client_payload.tag  }}"
-          echo "::set-output name=docker_image::${{ github.event.client_payload.image  }} "
-          echo "::set-output name=origin_ref::${{ github.event.client_payload.ref  }}"
-          echo "::set-output name=origin_event_name::${{ github.event.client_payload.event_name  }}"
+          echo "::set-output name=origin_ref::${{ github.ref }}"
           echo "::set-output name=origin_project::${{ inputs.projectName }}"
       - uses: actions/checkout@v2
         with:
@@ -105,11 +108,19 @@ jobs:
         with:
           step: save
           
-      - name: Dispatch action to run E2E
-        uses: peter-evans/repository-dispatch@v2
+#       - name: Dispatch action to run E2E
+#         uses: peter-evans/repository-dispatch@v2
+#         with:
+#           token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+#           event-type: e2e-event
+#           repository: One-Creation/${{ steps.init.outputs.origin_project }}
+#           client-payload: '{"ref": "${{ github.ref }}", "image": "${{  steps.docker_gen.outputs.docker_image }}", "tag": "${{  steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}"}'
+
+      - name: Invoke E2E workflow and wait for conclusion
+        uses: aurelien-baudet/workflow-dispatch@v2
         with:
-          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
-          event-type: e2e-event
-          repository: One-Creation/${{ steps.init.outputs.origin_project }}
-          client-payload: '{"ref": "${{ github.ref }}", "image": "${{  steps.docker_gen.outputs.docker_image }}", "tag": "${{  steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}"}'
-        
+          workflow: e2e.yml
+          token: ${{ secrets.ONECREATION_PAT_TOKEN }}        
+          wait-for-completion: true
+          display-workflow-run-url: true
+          inputs: '{ "projectName": "${{ inputs.projectName }}", "projectAlias": "${{ inputs.projectAlias }}",  "namespace": "${{ inputs.namespace }}", "origin_ref": " ${{ github.ref }}", "tag": " ${{ steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}" }'
