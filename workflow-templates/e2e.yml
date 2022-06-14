@@ -1,7 +1,28 @@
 name: E2E One-Creation
 
 on:
-  repository_dispatch:
+ workflow_dispatch:
+   inputs:
+     projectName:
+        required: true
+        type: string
+      projectAlias:
+        required: true
+        type: string        
+      namespace:
+        required: true
+        type: string      
+      tag:
+        required: true
+        type: string  
+      origin_ref:
+        required: true
+        type: string            
+      event_name:
+        required: true
+        type: string     
+ 
+ repository_dispatch:
     types:
       - e2e-event
 
@@ -10,6 +31,9 @@ jobs:
     uses: One-Creation/.github/.github/workflows/e2e.yml@main
     with:
       projectName: ${{ github.event.repository.name }}
-      projectAlias: #REPLACE_BY_HELM_CHART_ALIAS    
-      namespace: oc${{ github.run_id }}          
+      projectAlias: ${{ inputs.projectAlias }} 
+      namespace:  ${{ inputs.namespace }}   
+      tag: ${{ inputs.tag }}
+      origin_ref: ${{ inputs.origin_ref }}      
+      event_name: ${{ inputs.event_name }}            
     secrets: inherit
