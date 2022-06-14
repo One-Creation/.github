@@ -121,4 +121,5 @@ jobs:
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}        
           wait-for-completion: true
           display-workflow-run-url: true
+          ref: develop
           inputs: '{ "projectName": "${{ inputs.projectName }}", "projectAlias": "${{ inputs.projectAlias }}",  "namespace": "${{ inputs.namespace }}", "origin_ref": " ${{ github.ref }}", "tag": "${{ steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}" }'
