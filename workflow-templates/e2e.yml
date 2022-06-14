@@ -33,6 +33,7 @@ jobs:
       projectName: ${{inputs.projectName}}
       projectAlias: ${{inputs.projectAlias}}
       namespace: ${{inputs.namespace}}
+      tag: ${{inputs.tag}}      
       origin_ref: ${{inputs.origin_ref}}
       event_name: ${{inputs.event_name}}      
     secrets: inherit
