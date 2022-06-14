@@ -58,7 +58,7 @@ jobs:
         #      We set the values in the output to be able to use them later
         run: |
           echo "::set-output name=docker_tag::${{ inputs.tag }}"
-          echo "::set-output name=origin_ref::${{ input.origin_ref  }}"
+          echo "::set-output name=origin_ref::${{ inputs.origin_ref  }}"
           echo "::set-output name=origin_event_name::${{ intputs.event_name  }}"
       - name: Checkout Test Automation Repository
         # we only run E2E if it's a pr to main branch
