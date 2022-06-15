@@ -87,6 +87,8 @@ jobs:
    #       mvn release:perform -Dmaven.test.skip=true
       - name: Release
         if: contains(steps.init.outputs.origin_event_name, 'push')
+        env:
+          JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/13.0.11-4/x64
         uses: qcastel/github-actions-maven-release@master
         with:
           release-branch-name: "develop"
