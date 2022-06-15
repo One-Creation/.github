@@ -70,23 +70,23 @@ jobs:
 
       - name: Build and Test
         # we only run if it's a pr to main branch
-        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
+  #      if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn clean install
 
-      - name: Build and Close
-        if: contains(steps.init.outputs.origin_event_name, 'push')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          git config --global user.name "release-bot"
-          git config --global user.email "release-bot@onecreation.com"
-          mvn release:prepare -DskipTests -DautoResolveSnapshots="all" -Dusername=$GITHUB_TOKEN"
-          mvn clean install -Dmaven.test.skip=true -Dusername=$GITHUB_TOKEN     
-          mvn release:perform -Dmaven.test.skip=true -Dusername=$GITHUB_TOKEN
+     # - name: Build and Close
+     #   if: contains(steps.init.outputs.origin_event_name, 'push')
+      #  env:
+       #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        #  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+       # run: |
+       #   git config --global user.name "release-bot"
+       #   git config --global user.email "release-bot@onecreation.com"
+       #   mvn release:prepare -DskipTests -DautoResolveSnapshots="all" -Dusername=$GITHUB_TOKEN"
+       #   mvn clean install -Dmaven.test.skip=true -Dusername=$GITHUB_TOKEN     
+       #   mvn release:perform -Dmaven.test.skip=true -Dusername=$GITHUB_TOKEN
    
       - name: Quality Gate
         # we only run if it's a pr to main branch
