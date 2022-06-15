@@ -63,15 +63,31 @@ jobs:
           step: restore
 
       - name: Format check
+        # we only run if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         run: mvn fmt:check
 
       - name: Build and Test
+        # we only run if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn clean install
 
+      - name: Build and Close
+        if: contains(steps.init.outputs.origin_event_name, 'push')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn release:prepare -DskipTests -DautoResolveSnapshots="all" -B -Dusername=jose-juan-lopez -D password="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"
+          mvn clean install -Dmaven.test.skip=true     
+          mvn release:perform -Dmaven.test.skip=true
+
       - name: Quality Gate
+        # we only run if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         env:      
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -80,6 +96,7 @@ jobs:
         run: mvn sonar:sonar -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} -Dsonar.projectKey=${{ env.PROJECT_KEY }} -Dsonar.host.url=${{ env.SONAR_HOST_URL }} -Dsonar.login=${{ env.SONAR_TOKEN }}
 
       - name: Docker generation
+        # we only run if it's a pr to main branch
         id: docker_gen
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
@@ -99,21 +116,13 @@ jobs:
           echo "::set-output name=docker_tag::$PROJECT_VERSION_BUILD"
           echo "::set-output name=docker_image::$DOCKER"
         working-directory: ./target
-        
+   
       - name: Save Maven cache
         if: always()
         uses: skjolber/maven-cache-github-action@v1
         with:
           step: save
           
-#       - name: Dispatch action to run E2E
-#         uses: peter-evans/repository-dispatch@v2
-#         with:
-#           token: ${{ secrets.ONECREATION_PAT_TOKEN }}
-#           event-type: e2e-event
-#           repository: One-Creation/${{ steps.init.outputs.origin_project }}
-#           client-payload: '{"ref": "${{ github.ref }}", "image": "${{  steps.docker_gen.outputs.docker_image }}", "tag": "${{  steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}"}'
-
       - name: Invoke E2E workflow and wait for conclusion
         uses: aurelien-baudet/workflow-dispatch@v2
         with:
