@@ -76,26 +76,18 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn clean install
 
-    #  - name: Build and Close
-     #   if: contains(steps.init.outputs.origin_event_name, 'push')
-  ##      env:
-   #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-   #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-   #     run: |
-   #       mvn release:prepare -DskipTests -DautoResolveSnapshots="all" -B -Dusername=jose-juan-lopez -D password="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"
-   #       mvn clean install -Dmaven.test.skip=true     
-   #       mvn release:perform -Dmaven.test.skip=true
-      - name: Release
+      - name: Build and Close
         if: contains(steps.init.outputs.origin_event_name, 'push')
         env:
-          JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/13.0.11-4/x64
-        uses: qcastel/github-actions-maven-release@master
-        with:
-          release-branch-name: "develop"
-          git-release-bot-name: "release-bot"
-          git-release-bot-email: "release-bot@example.com"
-          access-token: ${{ secrets.ONECREATION_PAT_TOKEN }}
-
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          git config --global user.name "release-bot"
+          git config --global user.email "release-bot@onecreation.com"
+          mvn release:prepare -DskipTests -DautoResolveSnapshots="all" -B -Dusername=jose-juan-lopez -D password="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"
+          mvn clean install -Dmaven.test.skip=true     
+          mvn release:perform -Dmaven.test.skip=true
+   
       - name: Quality Gate
         # we only run if it's a pr to main branch
         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
