@@ -76,9 +76,10 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn clean install
 
-      - uses: fregante/setup-git-token@v1
+      - name: Update Git Information
+        uses: fregante/setup-git-token@v1
         with:
-          token: ${{ secrets.ONECREATION-PAT-TOKEN }}
+          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
           name: gh-automated-bot
           email: gh-automated-bot@onecreation.com
 
