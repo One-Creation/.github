@@ -105,7 +105,7 @@ jobs:
           git-release-bot-name: "bot-idhub"
           git-release-bot-email: "bot@idhub.io"
           maven-args: "-Dmaven.javadoc.skip=true -DskipTests -DskipITs"
-          access-token: ${{ secrtes.ONECREATION_PAT_TOKEN }
+          access-token: ${{ secrtes.ONECREATION_PAT_TOKEN }}
  
    
       - name: Quality Gate
