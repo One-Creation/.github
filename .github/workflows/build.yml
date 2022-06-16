@@ -75,25 +75,27 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn clean install
-
  
       - name: Setup git Credentials
-        uses: oleksiyrudenko/gha-git-credentials@v2.1
+        if: contains(steps.init.outputs.origin_event_name, 'push')      
+        uses: oleksiyrudenko/gha-git-credentials@v2.1        
         with:
           global: true
           name: 'Release Bot'
           email: 'release-bot@onecreation.com'        
           token: '${{ secrets.ONECREATION_PAT_TOKEN }}'
-          
-      - name: Build and Close
+      
+      - name: Build and Close Vervsion
+        # we only run if it's a pr to main branch
         if: contains(steps.init.outputs.origin_event_name, 'push')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn release:prepare -DskipTests -DautoResolveSnapshots="all" -Dusername=$GITHUB_TOKEN"
+          mvn release:prepare -Dmaven.tests.skip=true -DautoResolveSnapshosts="all" -Dusername=$GITHUB_TOKEN
           mvn clean install -Dmaven.test.skip=true -Dusername=$GITHUB_TOKEN
-          mvn release:perform -Dmaven.test.skip=true -Dusername=$GITHUB_TOKEN
+          mvn release:perform -Dmaven.tests.skip=true -Dusername=$GITHUB_TOKEN
+        
    
       - name: Quality Gate
         # we only run if it's a pr to main branch
