@@ -76,6 +76,15 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn clean install
 
+      - name: Commit Changes on Kubernetes repo
+#         if: contains(steps.init.outputs.origin_event_name, 'push')
+        uses: actions-js/push@v1.3
+        with:
+          github_token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          message: Updating release details
+          repository: One-Creation/oc-drm-aggregation-service
+          branch: develop
+          empty: true
       - name: Build and Close Vervsion
         # we only run if it's a pr to main branch
         if: contains(steps.init.outputs.origin_event_name, 'push')
