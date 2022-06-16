@@ -27,8 +27,10 @@ jobs:
           echo "::set-output name=origin_project::${{ inputs.projectName }}"
           echo "::set-output name=origin_event_name::${{ github.event_name  }}"
       - name: Code checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
+          repository: ${{ github.repository }}
+          fetch-depth: 0 
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}
     
       - name: Set up JDK 13
