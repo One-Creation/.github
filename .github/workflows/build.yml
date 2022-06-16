@@ -94,7 +94,7 @@ jobs:
           git commit -m "fix"
           git remote -v
           git config --list
-          git push --set-upstream origin develop
+          git push -c http.extraHeader="Authorization: Basic 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"  --set-upstream origin develop
           mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername="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" -Dpassword="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"
           mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"
           git status
