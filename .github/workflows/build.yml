@@ -83,10 +83,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ONECREATION_PAT_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |     
-          cat ~/.git-credentials
+          git config --global --unset credential.helper
           git config --global user.email "jeferson.belzarena@gft.com"
           git config --global user.name "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"
-          git checkout develop
           mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername=jose-juan-lopez -Dpassword="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"
           mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"
           git status
