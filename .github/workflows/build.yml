@@ -76,22 +76,18 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn clean install
 
-      - name: Update Git Information
-        uses: fregante/setup-git-token@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: gh-automated-bot
-          email: gh-automated-bot@onecreation.com
-
       - name: Build and Close Vervsion
         # we only run if it's a pr to main branch
         if: contains(steps.init.outputs.origin_event_name, 'push')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |         
-          mvn release:prepare -Dmaven.tests.skip=true -X -DskipTests=true -DautoResolveSnapshosts="all" -B  -DpushChanges=false -Dusername="${{ secrets.ONECREATION_PAT_TOKEN}}" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN}}"
-          mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" -B  -DpushChanges=false -Dusername="${{ secrets.ONECREATION_PAT_TOKEN}}" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN}}"
+        run: |     
+          git config --global user.email "oc-devops-github"
+          git config --global user.name "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"
+          git checkout develop
+          mvn release:prepare -Dmaven.tests.skip=true -X -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername=jose-juan-lopez -Dpassword="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"
+          mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"
           cat pom.xml
           git status
   
