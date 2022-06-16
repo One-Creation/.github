@@ -85,7 +85,7 @@ jobs:
         run: |     
           git config --global user.email "jeferson.belzarena@gft.com"
           git config --global user.name "${{ secrets.ONECREATION_PAT_TOKEN }}"
-          rm x.txt
+          > x.txt
           git add .
           git commit -m "fix"
           git push --set-upstream origin develop
