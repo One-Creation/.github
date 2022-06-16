@@ -79,7 +79,7 @@ jobs:
       - name: Update Git Information
         uses: fregante/setup-git-token@v1
         with:
-          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           name: gh-automated-bot
           email: gh-automated-bot@onecreation.com
 
@@ -87,13 +87,13 @@ jobs:
         # we only run if it's a pr to main branch
         if: contains(steps.init.outputs.origin_event_name, 'push')
         env:
-          GITHUB_TOKEN: ${{ secrets.ONECREATION_PAT_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           rm x.txt
           git add .
           git commit -m "x.txt"
-          git remote set-url origin https://${{ secrets.ONECREATION_PAT_TOKEN }}@github.com/One-Creation/oc-drm-aggregation-service.git
+          git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/One-Creation/oc-drm-aggregation-service.git
           git push
           mvn release:prepare -Dmaven.tests.skip=true -X -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername="${{ secrets.ONECREATION_PAT_TOKEN}}" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN}}"
   
