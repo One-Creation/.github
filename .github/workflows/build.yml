@@ -88,6 +88,10 @@ jobs:
           git config --global user.name "${{ secrets.ONECREATION_PAT_TOKEN}}"
           git config --list
           git pull
+          > x.txt
+          git add .
+          git commit -m "x.txt"
+          git push
           mvn release:prepare -Dmaven.tests.skip=true -X -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername="${{ secrets.ONECREATION_PAT_TOKEN}}" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN}}"
   
       - name: Quality Gate
