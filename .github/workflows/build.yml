@@ -90,7 +90,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ONECREATION_PAT_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          > x.txt
+          rm x.txt
           git add .
           git commit -m "x.txt"
           git push
