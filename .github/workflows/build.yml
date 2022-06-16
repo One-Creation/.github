@@ -84,7 +84,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |     
           cat ~/.git-credentials
-          git config --global --unset credential.helper
           git config --global user.email "jeferson.belzarena@gft.com"
           git config --global user.name "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"
           git checkout develop
