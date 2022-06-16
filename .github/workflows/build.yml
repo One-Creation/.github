@@ -38,7 +38,7 @@ jobs:
         with:
 #           repository: ${{ github.repository }}
           fetch-depth: 0 
-          token: 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
+          token: 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
     
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
