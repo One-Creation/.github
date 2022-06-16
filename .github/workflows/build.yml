@@ -106,7 +106,7 @@ jobs:
           git-release-bot-email: "bot@idhub.io"
           release-branch-name: develop
           maven-args: "-Dmaven.javadoc.skip=true -DskipTests -DskipITs"
-          maven-servers: '[{"id": "onecreation--onecreation", "username": "aws","password": "${env.CODEARTIFACT_AUTH_TOKEN}" }]'
+          maven-servers: '[{"id": "onecreation--onecreation", "username": "aws","password": "eyJ2ZXIiOjEsImlzdSI6MTY1NTM2ODQwNywiZW5jIjoiQTEyOEdDTSIsInRhZyI6Ii1VOFozUmtwQ3B0VG1WMG8xeUlXekEiLCJleHAiOjE2NTU0MTE2MDcsImFsZyI6IkExMjhHQ01LVyIsIml2IjoidkE1SWpnRkd2aEJQOFg4VSJ9.wcupVnsOJaA1HAIHCoAw7g.GMTHXbpB7mRo0gof.Xvz6E25pS1zyyZQVjBNCuubb4MMrVOGc-GyreTF5vliIV-DToh1T_CwfTJzHhsFsHP6Hx6MeoEXQF2r7iBMa3SITwA6Zq_G7z7T3KuytA7bIS_YeJ-E2oa7XgxBy2S1Y8sf_C5UAH0KemjUisnvgzR9wJT05_ejIHeaJTPgUvouQ45Yt1uwstxyJf5treH_4n8Tb1acXmB2LMjUSz6VUZyV5Ud7ZOT7sEC06K7wVJFT9gkZUdthTdcDHtFm02B1jWleDEih27hR1SHUHdzsv20M_pdtQMjtxfv0W7UxMookTFFhds3PsfA6FEyVlyDcqfAqP5h1JH_IKmRYMe8RD63WPfv8EfeLcqDMVVWG8NRbef6K87j8oa5eKiPNuDcVNquU4zQaU4bE9lF26K2_yh4XwUM6by8KEmH0POuU93EMfnqnFkDH2-TQTOAndyHEusXG3jGJ_k9RkbFPDz7jd6H_bcF4ThWKpelJ-dgAB3bcWk952ecikhIa6kLr89zC7btoEswOevbctN2WbpKaMM4CeyN8PHcIrwPmsSAeTLKWyexc2Kk-6vTieBLipJp-F7tATwIZnvyK8Ypx3Bk_lhJrYk1hy0frQK4M1um06I1oMeaEaPzUv7HhpZdvf2eWwWJXyQRmVJt2919IzTO-Fyb9miDW4s3e6v5OGdr2F-O_RxggsFlufX-OOWvTkceS4RoQr0b4aAduM7NhKkWNYs41HiJcQfd96f5kIiWq95OBem5NVbgK8IWejGlkf-y94Dhq9cLEeV47BZzGyuP0OYH6BqN7RqV7neuQega_lyLg-xw9119Xu2iUQu_TE9_u8z1ju3YzJ9vchXlOitVDyeKLK_LgDVyKRvFDFvnmq42lC9PUu5cM2KL8imV2RswFuInoy_THX2qKl1Hx6YzhazmVwgDBWkKUxJUB0v1EEDqC3pX8cqsRz-9fJWGEe_ZLO.n5bB7P_ugv4tW7tpxq28VQ" }]'
           access-token: ${{ secrets.ONECREATION_PAT_TOKEN }}
  
    
