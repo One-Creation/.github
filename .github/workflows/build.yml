@@ -92,9 +92,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn release:prepare -Dmaven.tests.skip=true -DautoResolveSnapshosts="all" -B -Dusername="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"
-          mvn clean install -Dmaven.test.skip=true  -B -Dusername="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"
-          mvn release:perform -Dmaven.tests.skip=true  -B  -Dusername="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"
+          mvn release:prepare -Dmaven.tests.skip=true -DautoResolveSnapshosts="all" -B -Dusername="dev-ops-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
+          mvn clean install -Dmaven.test.skip=true  -B -Dusername="dev-ops-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
+          mvn release:perform -Dmaven.tests.skip=true  -B  -Dusername="dev-ops-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
         
    
       - name: Quality Gate
