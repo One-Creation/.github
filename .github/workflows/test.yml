@@ -1,0 +1,26 @@
+on:
+  workflow_call:
+
+  workflow_dispatch:  
+   
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+      - name: Create report file
+        run: date +%s > report.txt
+      - name: Commit report
+        run: |
+          git config --global user.name 'Your Name'
+          git config --global user.email 'your-username@users.noreply.github.com'
+          > xxx.txt
+          git add .
+          git commit -am "Automated report"        
+          git push
