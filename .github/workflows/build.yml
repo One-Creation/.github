@@ -92,22 +92,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn clean package -DskipTests
-
-      - name: Release
-        uses: qcastel/github-actions-maven-release@v1.12.31
-        env:
-          CODEARTIFACT_AUTH_TOKEN: "eyJ2ZXIiOjEsImlzdSI6MTY1NTM2ODI0NywiZW5jIjoiQTEyOEdDTSIsInRhZyI6Ikh4MllJSVU0M3Q4eks1ZWVyc2UwLUEiLCJleHAiOjE2NTU0MTE0NDcsImFsZyI6IkExMjhHQ01LVyIsIml2IjoiTlBvR3lrc3E0NzhhOUg2SiJ9.fVsV528Xa9_BP94M-WMRbg.ISxQI-tjsfpFGJjh.-bXKncXPwQqJx-8dLIyJW2LGdeVluAvkHPNuBFzd9d-kM-djeFN1kQ4E9Kh5siQlT9P_66TH4NTb2SlEMziogtU5mnY64jnEOw6BUkhtNm-IhCEgJpLQfea2cPFuLFONqVDJfQtuhy4LCKwm0Wz6gS_4o1TtOVRlLhoOJdLdg2Nlqa0TOWLc0MO6LqLBx3g-BsQRSfC-zSHigG719VyeXT7cvbRlsHIfTm-_WccrMB8rL3uYix3okfa72ccb9vv8PPvlmtgPaJWRW2z1Cvms2LyzE7zoBJCnKciYvyNVDx9oG0oEFGtb8RU9fcFDeShdkEJEXPxl2zznv5yI4wMyIEVAcYqreFdmagQcKghuahqkOTA67WEFOGtfSSVToFOv0ccz_npIIuEyTgSihXEAGHD-HNNdFWD0ipjr03hA5pIW-aqDkK4YNlNIC_Rb6Xfs1w9PTS0qwue6ZzUNS1tshGBBk3UpYPP3_EwpxbUtuHul4oIdCs6RSfC1wkT1UDChnobS5xXhi9Z8-61kLaem2K2xuDfzlOGEfz4OD1ZX3zPQh0-Lj3gIq_cS3zAI-SPqpmxjwfDCCB38RjoUujgkGynhfjLzRvEkdE9HsobMrYSOQdfcJzCijsypwhTSia1zvhcoDyqzzBUOmOJfHJ_cpwHn8utdv-Uc1eJwvPVs7kZiT29edZO-BXdbQx7jshZPLMgRAODP53lynE1NZepLvAzGgQ8yT932igN4fx-UKGyNjcU7iMcZJxUcE-fHK7N3CfKpqJCz4QncNHSZy_AwThdC0NIYal2218sPL7EWRxxGwbNKESgig9qlqrsg5sPDY7Fzsf0GJt_HszPqT6zJZVbIR845gH97UQEcoc-uvkPj-YCiRSvx-Ii3v04RqdspqXJnSPNzsuh2EyeLNtbUShQvII5UI3Uqc87zdwWKUaG2_KpXsFdrZGN6WHI.wGySNRngSOhtAf71__d9fw"
-          JAVA_HOME: /usr/lib/jvm/java-14-openjdk/        
-        with:
-          git-release-bot-name: "bot-idhub"
-          git-release-bot-email: "bot@idhub.io"
-          release-branch-name: develop
-          maven-args: "-Dmaven.javadoc.skip=true -DskipTests -DskipITs"
-          maven-servers: '[{"id": "onecreation--onecreation", "username": "aws","password": "eyJ2ZXIiOjEsImlzdSI6MTY1NTM2ODQwNywiZW5jIjoiQTEyOEdDTSIsInRhZyI6Ii1VOFozUmtwQ3B0VG1WMG8xeUlXekEiLCJleHAiOjE2NTU0MTE2MDcsImFsZyI6IkExMjhHQ01LVyIsIml2IjoidkE1SWpnRkd2aEJQOFg4VSJ9.wcupVnsOJaA1HAIHCoAw7g.GMTHXbpB7mRo0gof.Xvz6E25pS1zyyZQVjBNCuubb4MMrVOGc-GyreTF5vliIV-DToh1T_CwfTJzHhsFsHP6Hx6MeoEXQF2r7iBMa3SITwA6Zq_G7z7T3KuytA7bIS_YeJ-E2oa7XgxBy2S1Y8sf_C5UAH0KemjUisnvgzR9wJT05_ejIHeaJTPgUvouQ45Yt1uwstxyJf5treH_4n8Tb1acXmB2LMjUSz6VUZyV5Ud7ZOT7sEC06K7wVJFT9gkZUdthTdcDHtFm02B1jWleDEih27hR1SHUHdzsv20M_pdtQMjtxfv0W7UxMookTFFhds3PsfA6FEyVlyDcqfAqP5h1JH_IKmRYMe8RD63WPfv8EfeLcqDMVVWG8NRbef6K87j8oa5eKiPNuDcVNquU4zQaU4bE9lF26K2_yh4XwUM6by8KEmH0POuU93EMfnqnFkDH2-TQTOAndyHEusXG3jGJ_k9RkbFPDz7jd6H_bcF4ThWKpelJ-dgAB3bcWk952ecikhIa6kLr89zC7btoEswOevbctN2WbpKaMM4CeyN8PHcIrwPmsSAeTLKWyexc2Kk-6vTieBLipJp-F7tATwIZnvyK8Ypx3Bk_lhJrYk1hy0frQK4M1um06I1oMeaEaPzUv7HhpZdvf2eWwWJXyQRmVJt2919IzTO-Fyb9miDW4s3e6v5OGdr2F-O_RxggsFlufX-OOWvTkceS4RoQr0b4aAduM7NhKkWNYs41HiJcQfd96f5kIiWq95OBem5NVbgK8IWejGlkf-y94Dhq9cLEeV47BZzGyuP0OYH6BqN7RqV7neuQega_lyLg-xw9119Xu2iUQu_TE9_u8z1ju3YzJ9vchXlOitVDyeKLK_LgDVyKRvFDFvnmq42lC9PUu5cM2KL8imV2RswFuInoy_THX2qKl1Hx6YzhazmVwgDBWkKUxJUB0v1EEDqC3pX8cqsRz-9fJWGEe_ZLO.n5bB7P_ugv4tW7tpxq28VQ" }]'
-          access-token: ${{ secrets.ONECREATION_PAT_TOKEN }}
- 
-   
+          aws sts get-caller-identity
+          mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"
+  
       - name: Quality Gate
         # we only run if it's a pr to main branch
         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
