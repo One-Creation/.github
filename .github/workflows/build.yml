@@ -99,7 +99,7 @@ jobs:
       - name: Release
         uses: qcastel/github-actions-maven-release@v1.12.31
         env:
-          CODEARTIFACT_AUTH_TOKEN: $(aws codeartifact get-authorization-token --domain ${{ secrets.SONAR_DOMAIN }} --domain-owner ${{ secrets.DOMAIN_OWNER }} --query authorizationToken --region ${{ env.REGION }} --output text)
+          CODEARTIFACT_AUTH_TOKEN: "eyJ2ZXIiOjEsImlzdSI6MTY1NTM2ODI0NywiZW5jIjoiQTEyOEdDTSIsInRhZyI6Ikh4MllJSVU0M3Q4eks1ZWVyc2UwLUEiLCJleHAiOjE2NTU0MTE0NDcsImFsZyI6IkExMjhHQ01LVyIsIml2IjoiTlBvR3lrc3E0NzhhOUg2SiJ9.fVsV528Xa9_BP94M-WMRbg.ISxQI-tjsfpFGJjh.-bXKncXPwQqJx-8dLIyJW2LGdeVluAvkHPNuBFzd9d-kM-djeFN1kQ4E9Kh5siQlT9P_66TH4NTb2SlEMziogtU5mnY64jnEOw6BUkhtNm-IhCEgJpLQfea2cPFuLFONqVDJfQtuhy4LCKwm0Wz6gS_4o1TtOVRlLhoOJdLdg2Nlqa0TOWLc0MO6LqLBx3g-BsQRSfC-zSHigG719VyeXT7cvbRlsHIfTm-_WccrMB8rL3uYix3okfa72ccb9vv8PPvlmtgPaJWRW2z1Cvms2LyzE7zoBJCnKciYvyNVDx9oG0oEFGtb8RU9fcFDeShdkEJEXPxl2zznv5yI4wMyIEVAcYqreFdmagQcKghuahqkOTA67WEFOGtfSSVToFOv0ccz_npIIuEyTgSihXEAGHD-HNNdFWD0ipjr03hA5pIW-aqDkK4YNlNIC_Rb6Xfs1w9PTS0qwue6ZzUNS1tshGBBk3UpYPP3_EwpxbUtuHul4oIdCs6RSfC1wkT1UDChnobS5xXhi9Z8-61kLaem2K2xuDfzlOGEfz4OD1ZX3zPQh0-Lj3gIq_cS3zAI-SPqpmxjwfDCCB38RjoUujgkGynhfjLzRvEkdE9HsobMrYSOQdfcJzCijsypwhTSia1zvhcoDyqzzBUOmOJfHJ_cpwHn8utdv-Uc1eJwvPVs7kZiT29edZO-BXdbQx7jshZPLMgRAODP53lynE1NZepLvAzGgQ8yT932igN4fx-UKGyNjcU7iMcZJxUcE-fHK7N3CfKpqJCz4QncNHSZy_AwThdC0NIYal2218sPL7EWRxxGwbNKESgig9qlqrsg5sPDY7Fzsf0GJt_HszPqT6zJZVbIR845gH97UQEcoc-uvkPj-YCiRSvx-Ii3v04RqdspqXJnSPNzsuh2EyeLNtbUShQvII5UI3Uqc87zdwWKUaG2_KpXsFdrZGN6WHI.wGySNRngSOhtAf71__d9fw"
           JAVA_HOME: /usr/lib/jvm/java-14-openjdk/        
         with:
           git-release-bot-name: "bot-idhub"
