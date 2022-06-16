@@ -2,6 +2,16 @@ on:
   workflow_call:
 
   workflow_dispatch:  
+    inputs:
+      projectName:
+        required: true
+        type: string
+      projectAlias:
+        required: true
+        type: string
+      namespace:
+        required: true
+        type: string     
    
 jobs:
   build:
@@ -11,16 +21,74 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - name: Initialization
+        id: init
+        #We set the values in the output to be able to use them later
+        run: |
+          echo "::set-output name=origin_ref::${{ github.ref }}"
+          echo "::set-output name=origin_project::${{ inputs.projectName }}"
+          echo "::set-output name=origin_event_name::${{ github.event_name  }}"
+      - name: Set up JDK 13
+        uses: actions/setup-java@v3
+        with:
+          java-version: 13
+          distribution: 'zulu'
+  
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+  
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-duration-seconds: 1200
+          role-session-name: GitHubActionsOcDrmMarketplaceBuild
+          
+      - name: Get maven settings
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: aws s3 cp s3://${{ secrets.PIPELINE_RESOURCES }}/maven/settings.xml ~/.m2/settings.xml
+
+      - name: Get CodeArtifact Token
+        env:
+          REGION: ${{ secrets.REGION }}
+        run: |
+          echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain ${{ secrets.SONAR_DOMAIN }} --domain-owner ${{ secrets.DOMAIN_OWNER }} --query authorizationToken --region ${{ env.REGION }} --output text)" >> $GITHUB_ENV
+      - name: Restore Maven cache
+        uses: skjolber/maven-cache-github-action@v1
+        with:
+          step: restore
+
+      - name: Format check
+        # we only run if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
+        run: mvn fmt:check
+      
       - name: Create report file
         run: date +%s > report.txt
+      
+      - name: Build and Release
+        if: contains(steps.init.outputs.origin_event_name,'push') 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
+        run: |        
+          git config --global user.name 'Gh-Bot'
+          git config --global user.email 'gh-bot@onecreation.com'
+          git commit -am "Automated report"        
+          git push
+          mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" 
+          mvn clean install -Dmaven.test.skip=true -DskipTests=true 
+          mvn release:perform -Dmaven.tests.skip=true -DskipTests=true       
+     
       - name: Commit report
         run: |
           git config --global user.name 'Your Name'
           git config --global user.email 'your-username@users.noreply.github.com'
-          > xxx.txt
           git add .
           git commit -am "Automated report"        
           git push
