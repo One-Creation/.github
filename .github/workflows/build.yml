@@ -61,10 +61,10 @@ jobs:
         run: |
           echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain ${{ secrets.SONAR_DOMAIN }} --domain-owner ${{ secrets.DOMAIN_OWNER }} --query authorizationToken --region ${{ env.REGION }} --output text)" >> $GITHUB_ENV
 
-      - name: Restore Maven cache
-        uses: skjolber/maven-cache-github-action@v1
-        with:
-          step: restore
+      #- name: Restore Maven cache
+      #  uses: skjolber/maven-cache-github-action@v1
+      #  with:
+      #    step: restore
 
       - name: Format check
         # we only run if it's a pr to main branch
@@ -123,11 +123,11 @@ jobs:
           echo "::set-output name=docker_image::$DOCKER"
         working-directory: ./target
    
-      - name: Save Maven cache
-        if: always()
-        uses: skjolber/maven-cache-github-action@v1
-        with:
-          step: save
+     # - name: Save Maven cache
+      #  if: always()
+      #  uses: skjolber/maven-cache-github-action@v1
+      #  with:
+      #    step: save
           
       - name: Invoke E2E workflow and wait for conclusion
         uses: aurelien-baudet/workflow-dispatch@v2
