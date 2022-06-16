@@ -88,13 +88,14 @@ jobs:
           git config --global user.name "${{ secrets.ONECREATION_PAT_TOKEN }}"
           > x.txt
           git config http.sslVerify false
+          git config --global credential.authority Basic
           git remote remove origin
-          git remote add origin https://jeferson.belzarena%40gft.com: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@github.com/One-Creation/oc-drm-aggregation-service.git
+          git remote add origin https://${{ secrets.ONECREATION_PAT_TOKEN }}@github.com/One-Creation/oc-drm-aggregation-service.git
           git add .
           git commit -m "fix"
           git remote -v
           git config --list
-          git push -c http.extraHeader="Authorization: Basic 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"  --set-upstream origin develop
+          git push --set-upstream origin develop
           mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername="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" -Dpassword="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"
           mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"
           git status
