@@ -76,27 +76,36 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn clean install
  
-      - name: Setup git Credentials
-        if: contains(steps.init.outputs.origin_event_name, 'push')      
-        uses: oleksiyrudenko/gha-git-credentials@v2.1        
-        with:
-          global: true
-          name: 'oc-devops-github'
-          email: '${{ secrets.ONECREATION_PAT_TOKEN}}'        
-          token: '${{ secrets.ONECREATION_PAT_TOKEN }}'
+#       - name: Setup git Credentials
+#         if: contains(steps.init.outputs.origin_event_name, 'push')      
+#         uses: oleksiyrudenko/gha-git-credentials@v2.1        
+#         with:
+#           global: true
+#           name: 'oc-devops-github'
+#           email: '${{ secrets.ONECREATION_PAT_TOKEN}}'        
+#           token: '${{ secrets.ONECREATION_PAT_TOKEN }}'
       
-      - name: Build and Close Vervsion
-        # we only run if it's a pr to main branch
-        if: contains(steps.init.outputs.origin_event_name, 'push')
+#       - name: Build and Close Vervsion
+#         # we only run if it's a pr to main branch
+#         if: contains(steps.init.outputs.origin_event_name, 'push')
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+#           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#         run: |
+#           aws ecr get-login-password --region ${{ secrets.REGION }}| docker login ${{ secrets.DOCKER_REPO }} -u AWS --password-stdin
+#           mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" 
+#           mvn clean install -Dmaven.test.skip=true -DskipTests=true 
+#           mvn release:perform -Dmaven.tests.skip=true -DskipTests=true 
+      - name: Release
+        uses: qcastel/github-actions-maven-release@TAG_NAME
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          aws ecr get-login-password --region ${{ secrets.REGION }}| docker login ${{ secrets.DOCKER_REPO }} -u AWS --password-stdin
-          mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" 
-          mvn clean install -Dmaven.test.skip=true -DskipTests=true 
-          mvn release:perform -Dmaven.tests.skip=true -DskipTests=true 
-        
+          CODEARTIFACT_AUTH_TOKEN: $(aws codeartifact get-authorization-token --domain ${{ secrets.SONAR_DOMAIN }} --domain-owner ${{ secrets.DOMAIN_OWNER }} --query authorizationToken --region ${{ env.REGION }} --output text)
+          JAVA_HOME: /usr/lib/jvm/java-14-openjdk/        
+        with:
+          git-release-bot-name: "bot-idhub"
+          git-release-bot-email: "bot@idhub.io"
+          maven-args: "-Dmaven.javadoc.skip=true -DskipTests -DskipITs"
+ 
    
       - name: Quality Gate
         # we only run if it's a pr to main branch
