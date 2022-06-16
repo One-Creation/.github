@@ -82,6 +82,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ONECREATION_PAT_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          ACTIONS_STEP_DEBUG: true
         run: |     
           git config --global user.email "jeferson.belzarena@gft.com"
           git config --global user.name "${{ secrets.ONECREATION_PAT_TOKEN }}"
@@ -91,6 +92,8 @@ jobs:
           git remote add origin https://jeferson.belzarena%40gft.com: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@github.com/One-Creation/oc-drm-aggregation-service.git
           git add .
           git commit -m "fix"
+          git remote -v
+          git config --list
           git push --set-upstream origin develop
           mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername="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" -Dpassword="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"
           mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"
