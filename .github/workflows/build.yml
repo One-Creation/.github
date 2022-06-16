@@ -76,19 +76,29 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn clean install
 
+      - name: Commit Changes on Kubernetes repo
+#         if: contains(steps.init.outputs.origin_event_name, 'push')
+        uses: actions-js/push@v1.3
+        with:
+          github_token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          message: Updating release details
+          repository: One-Creation/oc-drm-aggregation-service
+          branch: develop
+          empty: true
+
+
       - name: Build and Close Vervsion
         # we only run if it's a pr to main branch
         if: contains(steps.init.outputs.origin_event_name, 'push')
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.ONECREATION_PAT_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |     
           git config --global user.email "oc-devops-github"
-          git config --global user.name "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"
+          git config --global user.name "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"
           git checkout develop
-          mvn release:prepare -Dmaven.tests.skip=true -X -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername=jose-juan-lopez -Dpassword="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"
+          mvn release:prepare -Dmaven.tests.skip=true -X -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername=jose-juan-lopez -Dpassword="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"
           mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"
-          cat pom.xml
           git status
   
       - name: Quality Gate
