@@ -91,6 +91,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |         
           mvn release:prepare -Dmaven.tests.skip=true -X -DskipTests=true -DautoResolveSnapshosts="all" -B  -DpushChanges=false -Dusername="${{ secrets.ONECREATION_PAT_TOKEN}}" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN}}"
+          mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" -B  -DpushChanges=false -Dusername="${{ secrets.ONECREATION_PAT_TOKEN}}" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN}}"
+          cat pom.xml
           git status
   
       - name: Quality Gate
