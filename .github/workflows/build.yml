@@ -94,7 +94,7 @@ jobs:
           git add .
           git commit -m "x.txt"
           git remote set-url origin https://gh:${{ secrets.GITHUB_TOKEN }}@github.com/One-Creation/oc-drm-aggregation-service.git
-          git config list
+          git config --list
           git push
           mvn release:prepare -Dmaven.tests.skip=true -X -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername="${{ secrets.ONECREATION_PAT_TOKEN}}" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN}}"
   
