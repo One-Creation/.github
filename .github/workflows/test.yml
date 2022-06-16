@@ -67,15 +67,18 @@ jobs:
         # we only run if it's a pr to main branch
         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         run: mvn fmt:check
-      
-      - name: Build and Release
+
+      - name: Prepare Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
         run: |        
           mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"  -Dusername="jeferson.belzarena@gft.com" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
           mvn clean install -Dmaven.test.skip=true -DskipTests=true
-          echo "---------------------------------------------RELEASE PREPARE-----------------------------
+          
+      - name: Perform Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
+        run: |        
           mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -Dusername="gh-action-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
-     
- 
