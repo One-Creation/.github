@@ -86,6 +86,8 @@ jobs:
           git config --global user.email "jeferson.belzarena@gft.com"
           git config --global user.name "${{ secrets.ONECREATION_PAT_TOKEN }}"
           > x.txt
+          git remote remove origin
+          git remote add origin https://${{ secrets.ONECREATION_PAT_TOKEN }}@github.com/One-Creation/oc-drm-aggregation-service.git
           git add .
           git commit -m "fix"
           git push --set-upstream origin develop
