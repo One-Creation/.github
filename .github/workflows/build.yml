@@ -93,6 +93,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           aws sts get-caller-identity
+          git config --global user.email "oc-devops-github"
+          git config --global user.name "${{ secrets.ONECREATION_PAT_TOKEN}}"
           mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"
   
       - name: Quality Gate
