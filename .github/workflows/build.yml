@@ -76,15 +76,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn clean install
 
-      - name: Commit Changes on Kubernetes repo
-#         if: contains(steps.init.outputs.origin_event_name, 'push')
-        uses: actions-js/push@v1.3
-        with:
-          github_token: ${{ secrets.ONECREATION_PAT_TOKEN }}
-          message: Updating release details
-          repository: One-Creation/oc-drm-aggregation-service
-          branch: develop
-          empty: true
       - name: Build and Close Vervsion
         # we only run if it's a pr to main branch
         if: contains(steps.init.outputs.origin_event_name, 'push')
@@ -95,8 +86,9 @@ jobs:
           git config --global user.email "jeferson.belzarena@gft.com"
           git config --global user.name "${{ secrets.ONECREATION_PAT_TOKEN }}"
           > x.txt
+          git config http.sslVerify false
           git remote remove origin
-          git remote add origin https://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@github.com/One-Creation/oc-drm-aggregation-service.git
+          git remote add origin https://jeferson.belzarena%40gft.com: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@github.com/One-Creation/oc-drm-aggregation-service.git
           git add .
           git commit -m "fix"
           git push --set-upstream origin develop
