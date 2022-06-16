@@ -87,8 +87,11 @@ jobs:
           git config --global user.name "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"
           git remote remove origin
           git remote add origin https://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@github.com/One-Creation/oc-drm-aggregation-service.git
-          git remote -v
-          mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername=jose-juan-lopez -Dpassword="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"
+          rm x.txt
+          git add .
+          git commit -m "fix"
+          git push
+          mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername="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" -Dpassword="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"
           mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"
           git status
   
