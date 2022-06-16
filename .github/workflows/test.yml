@@ -76,18 +76,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
         run: |        
-          git config --global user.name 'Gh-Bot'
-          git config --global user.email 'gh-bot@onecreation.com'
+          git config --global user.name 'Your Name'
+          git config --global user.email 'your-username@users.noreply.github.com'
           git commit -am "Automated report"        
           git push
-          mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" 
+          mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"  -Dusername="${{ secrets.ONECREATION_PAT_TOKEN }}" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
           mvn clean install -Dmaven.test.skip=true -DskipTests=true 
           mvn release:perform -Dmaven.tests.skip=true -DskipTests=true       
      
-      - name: Commit report
-        run: |
-          git config --global user.name 'Your Name'
-          git config --global user.email 'your-username@users.noreply.github.com'
-          git add .
-          git commit -am "Automated report"        
-          git push
+ 
