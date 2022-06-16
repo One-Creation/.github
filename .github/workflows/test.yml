@@ -73,11 +73,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
         run: |        
-          echo "---------------------------------------------RELEASE PREPARE-------------------------------
           mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"  -Dusername="jeferson.belzarena@gft.com" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
-          echo "---------------------------------------------CLEAN INSTALL-------------------------------
-          mvn clean install -Dmaven.test.skip=true -DskipTests=true 
-          echo "---------------------------------------------RELEASE RELEASE -------------------------------
-          mvn release:perform -Dmaven.tests.skip=true -DskipTests=true       -Dusername="gh-action-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
+          mvn clean install -Dmaven.test.skip=true -DskipTests=true
+          echo "---------------------------------------------RELEASE PREPARE-------------------------------
+          mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -Dusername="gh-action-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
      
  
