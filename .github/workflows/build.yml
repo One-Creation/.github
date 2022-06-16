@@ -80,12 +80,12 @@ jobs:
         # we only run if it's a pr to main branch
         if: contains(steps.init.outputs.origin_event_name, 'push')
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.ONECREATION_PAT_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           aws sts get-caller-identity
-          git config --global user.email "oc-devops-github"
-          git config --global user.name "${{ secrets.ONECREATION_PAT_TOKEN}}"
+          git config --global user.email "Jeferson Belzarena"
+          git config --global user.name "jeferson.belzarena@gft.com"
           git config --list
           git pull
           > x.txt
