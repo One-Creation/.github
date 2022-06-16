@@ -80,7 +80,7 @@ jobs:
         run: mvn clean install
  
       - name: Build and Release
-        if: contains(steps.init.outputs.origin_ref,'push') 
+        if: contains(steps.init.outputs.origin_event_name,'push') 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
