@@ -26,9 +26,9 @@ jobs:
           echo "::set-output name=origin_ref::${{ github.ref }}"
           echo "::set-output name=origin_project::${{ inputs.projectName }}"
           echo "::set-output name=origin_event_name::${{ github.event_name  }}"
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
     
       - name: Set up JDK 13
         uses: actions/setup-java@v3
@@ -70,11 +70,23 @@ jobs:
 
       - name: Build and Test
         # we only run if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn clean install
+ 
+      - name: Build and Release
+        if: contains(steps.init.outputs.origin_ref,'push') 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
+        run: |        
+          git config --global user.name 'Gh-Bot'
+          git config --global user.email 'gh-bot@onecreation.com'
+          mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" 
+          mvn clean install -Dmaven.test.skip=true -DskipTests=true 
+          mvn release:perform -Dmaven.tests.skip=true -DskipTests=true 
  
       - name: Quality Gate
         # we only run if it's a pr to main branch
