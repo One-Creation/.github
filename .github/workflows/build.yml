@@ -106,6 +106,7 @@ jobs:
           git-release-bot-email: "bot@idhub.io"
           release-branch-name: develop
           maven-args: "-Dmaven.javadoc.skip=true -DskipTests -DskipITs"
+          maven-servers: '[{"id": "onecreation--onecreation", "username": "aws","password": "${env.CODEARTIFACT_AUTH_TOKEN}" }]'
           access-token: ${{ secrets.ONECREATION_PAT_TOKEN }}
  
    
