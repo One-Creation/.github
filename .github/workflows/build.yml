@@ -70,35 +70,12 @@ jobs:
 
       - name: Build and Test
         # we only run if it's a pr to main branch
-        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
+#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn clean install
-
-      - name: Build and Close Vervsion
-        # we only run if it's a pr to main branch
-        if: contains(steps.init.outputs.origin_event_name, 'push')
-        env:
-          GITHUB_TOKEN: ${{ secrets.ONECREATION_PAT_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          ACTIONS_STEP_DEBUG: true
-        run: |     
-          git config --global user.email "jeferson.belzarena@gft.com"
-          git config --global user.name "${{ secrets.ONECREATION_PAT_TOKEN }}"
-          > x.txt
-          git config credential.https://github.com/.helper "! f() { echo username=x-access-token; echo password=$GITHUB_TOKEN; };f"
-          git remote remove origin
-          git remote add origin https://${{ secrets.ONECREATION_PAT_TOKEN }}@github.com/One-Creation/oc-drm-aggregation-service.git
-          git add .
-          git commit -m "fix"
-          git remote -v
-          git config --list
-          git push --set-upstream origin develop
-          mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername="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" -Dpassword="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"
-          mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"
-          git status
-  
+ 
       - name: Quality Gate
         # we only run if it's a pr to main branch
         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
