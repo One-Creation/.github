@@ -86,6 +86,8 @@ jobs:
           aws sts get-caller-identity
           git config --global user.email "oc-devops-github"
           git config --global user.name "${{ secrets.ONECREATION_PAT_TOKEN}}"
+          git config --list
+          git pull
           mvn release:prepare -Dmaven.tests.skip=true -X -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername="${{ secrets.ONECREATION_PAT_TOKEN}}" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN}}"
   
       - name: Quality Gate
