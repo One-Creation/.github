@@ -75,15 +75,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn clean install
- 
-#       - name: Setup git Credentials
-#         if: contains(steps.init.outputs.origin_event_name, 'push')      
-#         uses: oleksiyrudenko/gha-git-credentials@v2.1        
-#         with:
-#           global: true
-#           name: 'oc-devops-github'
-#           email: '${{ secrets.ONECREATION_PAT_TOKEN}}'        
-#           token: '${{ secrets.ONECREATION_PAT_TOKEN }}'
       
       - name: Build and Close Vervsion
         # we only run if it's a pr to main branch
@@ -95,7 +86,7 @@ jobs:
           aws sts get-caller-identity
           git config --global user.email "oc-devops-github"
           git config --global user.name "${{ secrets.ONECREATION_PAT_TOKEN}}"
-          mvn release:prepare -Dmaven.tests.skip=true -X -DskipTests=true -DautoResolveSnapshosts="all"
+          mvn release:prepare -Dmaven.tests.skip=true -X -DskipTests=true -DautoResolveSnapshosts="all" -B -Dusername="${{ secrets.ONECREATION_PAT_TOKEN}}" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN}}"
   
       - name: Quality Gate
         # we only run if it's a pr to main branch
