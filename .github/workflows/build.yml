@@ -81,8 +81,8 @@ jobs:
         uses: oleksiyrudenko/gha-git-credentials@v2.1        
         with:
           global: true
-          name: 'Release Bot'
-          email: 'release-bot@onecreation.com'        
+          name: 'oc-devops-github'
+          email: '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'        
           token: '${{ secrets.ONECREATION_PAT_TOKEN }}'
       
       - name: Build and Close Vervsion
@@ -92,9 +92,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn release:prepare -Dmaven.tests.skip=true -DautoResolveSnapshosts="all" -Dusername=$GITHUB_TOKEN
-          mvn clean install -Dmaven.test.skip=true -Dusername=$GITHUB_TOKEN
-          mvn release:perform -Dmaven.tests.skip=true -Dusername=$GITHUB_TOKEN
+          mvn release:prepare -Dmaven.tests.skip=true -DautoResolveSnapshosts="all" -B -Dusername=jose-juan-lopez -Dpassword="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"
+          mvn clean install -Dmaven.test.skip=true  -B -Dusername=jose-juan-lopez -Dpassword="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"
+          mvn release:perform -Dmaven.tests.skip=true  -B -Dusername=jose-juan-lopez -Dpassword="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"
         
    
       - name: Quality Gate
