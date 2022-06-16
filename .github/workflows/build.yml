@@ -82,7 +82,7 @@ jobs:
         with:
           global: true
           name: 'oc-devops-github'
-          email: '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'        
+          email: '${{ secrets.ONECREATION_PAT_TOKEN}}'        
           token: '${{ secrets.ONECREATION_PAT_TOKEN }}'
       
       - name: Build and Close Vervsion
@@ -92,9 +92,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn release:prepare -Dmaven.tests.skip=true -DautoResolveSnapshosts="all" -B -Dusername="dev-ops-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
-          mvn clean install -Dmaven.test.skip=true  -B -Dusername="dev-ops-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
-          mvn release:perform -Dmaven.tests.skip=true  -B  -Dusername="dev-ops-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
+          mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all" -B  -Dusername="dev-ops-bot"  -Dpassword=$(aws codeartifact get-authorization-token --domain onecreation --domain-owner 307126822414 --query authorizationToken --output text)
+          mvn clean install -Dmaven.test.skip=true -DskipTests=true -B  -Dusername="dev-ops-bot"  -Dpassword=$(aws codeartifact get-authorization-token --domain onecreation --domain-owner 307126822414 --query authorizationToken --output text)
+          mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -B  -Dusername="dev-ops-bot"  -Dpassword=$(aws codeartifact get-authorization-token --domain onecreation --domain-owner 307126822414 --query authorizationToken --output text)
         
    
       - name: Quality Gate
