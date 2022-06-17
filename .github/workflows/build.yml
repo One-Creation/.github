@@ -94,7 +94,7 @@ jobs:
           git config --global user.name 'gh-devops-bot'
           git config --global user.email 'dev-ops-bot@onecreation.com'
           mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"  -Dusername="gh-devops-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
-          export VERSION=$(grep  -i "scm.tag=" release.properties | sed s"/scm.tag=//")
+          export VERSION=$(grep  -i "scm.tag=" release.properties | sed s"/scm.tag=//" | sed s"/${{ inputs.projectName }}-//")
           mvn clean install -Dmaven.test.skip=true -DskipTests=true
           mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DlocalCheckout=true
           git push
@@ -120,7 +120,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |    
-          test ${{ steps.release.outputs.closed_version }} && PROJEC.VERSION=${{ steps.release.outputs.closed_version }} || PROJECT_VERSION=`mvn -f ../pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout`          
+          test ${{ steps.release.outputs.closed_version }} && PROJECT_VERSION=${{ steps.release.outputs.closed_version }} || PROJECT_VERSION=`mvn -f ../pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout`          
           PROJECT_VERSION_BUILD="$PROJECT_VERSION"
           aws ecr get-login-password --region ${{ secrets.REGION }}| docker login ${{ secrets.DOCKER_REPO }} -u AWS --password-stdin
           wget -O dd-java-agent.jar 'https://github.com/DataDog/dd-trace-java/releases/download/v0.97.0/dd-java-agent.jar'
