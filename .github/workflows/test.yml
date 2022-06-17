@@ -73,7 +73,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
         run: |        
-          mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"  -Dusername="jeferson.belzarena@gft.com" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
+          mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"  -Dusername="gh-devops-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
           mvn clean install -Dmaven.test.skip=true -DskipTests=true
           
       - name: Perform Release
@@ -81,4 +81,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
         run: |        
+          cat release.properties
           mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -Dusername="jeferson.belzarena@gft.com" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
