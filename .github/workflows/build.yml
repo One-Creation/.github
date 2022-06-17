@@ -28,20 +28,20 @@ jobs:
           echo "::set-output name=origin_event_name::${{ github.event_name  }}"
 
       - name: Set up JDK 13
-        if: ! contains(github.event.head_commit.message,'maven-release-plugin')        
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         uses: actions/setup-java@v3
         with:
           java-version: 13
           distribution: 'zulu'
   
       - name: Code checkout
-        if: ! contains(github.event.head_commit.message,'maven-release-plugin')        
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}
     
       - name: Configure AWS Credentials
-        if: ! contains(github.event.head_commit.message,'maven-release-plugin')  
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ${{ secrets.REGION }}
@@ -51,7 +51,7 @@ jobs:
           role-session-name: GitHubActionsOcDrmMarketplaceBuild
           
       - name: Get maven settings
-        if: ! contains(github.event.head_commit.message,'maven-release-plugin')        
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -64,19 +64,19 @@ jobs:
         run: echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain ${{ secrets.SONAR_DOMAIN }} --domain-owner ${{ secrets.DOMAIN_OWNER }} --query authorizationToken --region ${{ env.REGION }} --output text)" >> $GITHUB_ENV
 
       - name: Restore Maven cache
-        if: ! contains(github.event.head_commit.message,'maven-release-plugin')          
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         uses: skjolber/maven-cache-github-action@v1
         with:
           step: restore
 
       - name: Format check
         # we only run if it's a pr to main branch
-        if: ! contains(github.event.head_commit.message,'maven-release-plugin')  && contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')  && contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')"
         run: mvn fmt:check
 
       - name: Build and Test
         # we only run if it's a pr to main branch
-        if: ! contains(github.event.head_commit.message,'maven-release-plugin') && contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin') && contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -84,7 +84,7 @@ jobs:
  
       - name: Build and Release
         id: release
-        if: ! contains(github.event.head_commit.message,'maven-release-plugin') && contains(steps.init.outputs.origin_event_name,'push')      
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin') && contains(steps.init.outputs.origin_event_name,'push')"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
@@ -100,7 +100,7 @@ jobs:
  
       - name: Quality Gate
         # we only run if it's a pr to main branch
-        if: ! contains(github.event.head_commit.message,'maven-release-plugin') && contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin') && contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')"
         env:      
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -111,7 +111,7 @@ jobs:
       - name: Docker generation
         # we only run if it's a pr to main branch
         id: docker_gen
-        if: ! contains(github.event.head_commit.message,'maven-release-plugin')
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           AWS_REGION: ${{ secrets.REGION }}
@@ -139,7 +139,7 @@ jobs:
           
       - name: Invoke E2E workflow and wait for conclusion
         uses: aurelien-baudet/workflow-dispatch@v2
-        if: ! contains(github.event.head_commit.message,'maven-release-plugin')
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         with:
           workflow: e2e.yml
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}        
