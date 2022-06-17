@@ -72,7 +72,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
-        run: |        
+        run: |
+          git config --global user.name 'dev-ops-bot'
+          git config --global user.email 'dev-ops-bot@onecreation.com'        
           mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"  -Dusername="gh-devops-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
           mvn clean install -Dmaven.test.skip=true -DskipTests=true
           
@@ -81,8 +83,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
         run: |        
-          git config --global user.name 'dev-ops-bot'
-          git config --global user.email 'dev-ops-bot@onecreation.com'
           mvn release:perform -X -Dmaven.tests.skip=true -DskipTests=true -DlocalCheckout=true
           git status
           cat pom.xml
