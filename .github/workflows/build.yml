@@ -97,6 +97,7 @@ jobs:
           export VERSION=$(grep  -i "scm.tag=" release.properties | sed s"/scm.tag=//" | sed s"/${{ inputs.projectName }}-//")
           mvn clean install -Dmaven.test.skip=true -DskipTests=true
           mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DlocalCheckout=true
+          git pull
           git push
           echo "::set-output name=closed_version::$VERSION"
  
