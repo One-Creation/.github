@@ -84,3 +84,5 @@ jobs:
           git config --global user.name 'dev-ops-bot'
           git config --global user.email 'dev-ops-bot@onecreation.com'
           mvn release:perform -X -Dmaven.tests.skip=true -DskipTests=true -DlocalCheckout=true
+          git status
+          cat pom.xml
