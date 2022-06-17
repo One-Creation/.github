@@ -23,6 +23,8 @@ jobs:
         id: init
         #We set the values in the output to be able to use them later
         run: |
+          git config --global user.name 'gh-devops-bot'
+          git config --global user.email 'dev-ops-bot@onecreation.com'        
           echo "::set-output name=origin_ref::${{ github.ref }}"
           echo "::set-output name=origin_project::${{ inputs.projectName }}"
           echo "::set-output name=origin_event_name::${{ github.event_name  }}"
