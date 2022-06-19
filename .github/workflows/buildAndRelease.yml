@@ -1,0 +1,113 @@
+#Used for libraries or other projects that don't need to have a docker generated, but still need the versions to be closed.
+on:
+  workflow_call:
+    inputs:
+      projectName:
+        required: true
+        type: string
+   
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Initialization
+        id: init
+        #We set the values in the output to be able to use them later
+        run: |
+          git config --global user.name 'gh-devops-bot'
+          git config --global user.email 'dev-ops-bot@onecreation.com'        
+          echo "::set-output name=origin_ref::${{ github.ref }}"
+          echo "::set-output name=origin_project::${{ inputs.projectName }}"
+          echo "::set-output name=origin_event_name::${{ github.event_name  }}"
+      - name: Set up JDK 13
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
+        uses: actions/setup-java@v3
+        with:
+          java-version: 13
+          distribution: 'zulu'
+  
+      - name: Code checkout
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+    
+      - name: Configure AWS Credentials
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-duration-seconds: 1200
+          role-session-name: GitHubActionsOcDrmMarketplaceBuild
+          
+      - name: Get maven settings
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: aws s3 cp s3://${{ secrets.PIPELINE_RESOURCES }}/maven/settings.xml ~/.m2/settings.xml
+
+      - name: Get CodeArtifact Token
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
+        env:
+          REGION: ${{ secrets.REGION }}
+        run: echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain ${{ secrets.SONAR_DOMAIN }} --domain-owner ${{ secrets.DOMAIN_OWNER }} --query authorizationToken --region ${{ env.REGION }} --output text)" >> $GITHUB_ENV
+
+      - name: Restore Maven cache
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
+        uses: skjolber/maven-cache-github-action@v1
+        with:
+          step: restore
+
+      - name: Format check
+        # we only run if it's a pr to main branch
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')  && contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')"
+        run: mvn fmt:check
+
+      - name: Build and Test
+        # we only run if it's a pr to main branch
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin') && contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn clean install
+ 
+      - name: Quality Gate
+        # we only run if it's a pr to main branch
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin') && contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')"
+        env:      
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_KEY: One-Creation_${{ inputs.projectName }}
+        run: mvn sonar:sonar -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} -Dsonar.projectKey=${{ env.PROJECT_KEY }} -Dsonar.host.url=${{ env.SONAR_HOST_URL }} -Dsonar.login=${{ env.SONAR_TOKEN }}
+
+      - name: Build and Release
+        id: release
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin') && contains(steps.init.outputs.origin_event_name,'push')"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
+        run: |        
+          git config --global user.name 'gh-devops-bot'
+          git config --global user.email 'dev-ops-bot@onecreation.com'
+          mvn release:prepare -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"  -Dusername="gh-devops-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
+          export VERSION=$(grep  -i "scm.tag=" release.properties | sed s"/scm.tag=//" | sed s"/${{ inputs.projectName }}-//")
+          mvn clean install -Dmaven.test.skip=true -DskipTests=true
+          mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DlocalCheckout=true
+          git pull
+          git push
+          echo "::set-output name=closed_version::$VERSION"
+
+      - name: Save Maven cache
+        if: always()
+        uses: skjolber/maven-cache-github-action@v1
+        with:
+          step: save
+          
