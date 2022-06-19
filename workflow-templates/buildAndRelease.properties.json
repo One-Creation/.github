@@ -1,0 +1,12 @@
+{
+    "name": "Build and Release One-Creation Libraries",
+    "description": "Build and Release Libraries that don't need a docker",
+    "categories": [
+        "Java"
+    ],
+    "filePatterns": [
+        "package.json$",
+        "^Dockerfile",
+        ".*\\.md$"
+    ]
+}
