@@ -9,7 +9,7 @@ on:
     
 jobs:
   one-creation-build:
-    uses: One-Creation/.github/.github/workflows/build.yml@main
+    uses: One-Creation/.github/.github/workflows/buildAndRelease.yml@main
     with:
       projectName: ${{ github.event.repository.name }}
     secrets: inherit
