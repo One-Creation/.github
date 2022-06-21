@@ -151,3 +151,11 @@ jobs:
           display-workflow-run-url: true
           ref: develop
           inputs: '{ "projectName": "${{ inputs.projectName }}", "projectAlias": "${{ inputs.projectAlias }}",  "namespace": "${{ inputs.namespace }}", "origin_ref": " ${{ github.ref }}", "tag": "${{ steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}" }'
+
+      - name: Notify Status of build in Slack
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_CHANNEL: pipeline-status-notification
+  
