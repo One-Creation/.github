@@ -136,6 +136,7 @@ jobs:
           sleep 10
           kubectl wait pods -n $NAMESPACE -l app.kubernetes.io/name=oc-drm-daml --for condition=ContainersReady --timeout=600s && true
           kubectl wait pods -n $NAMESPACE -l app.kubernetes.io/name=oc-drm-service --for condition=ContainersReady --timeout=300s && true
+          kubectl wait pods -n $NAMESPACE -l app.kubernetes.io/name=oc-drm-aggregation-service --for condition=ContainersReady --timeout=300s && true
           kubectl get pods
         working-directory: oc-drm-kubernetes/helm/scripts
 
