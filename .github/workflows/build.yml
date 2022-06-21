@@ -159,4 +159,5 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_COLOR: ${{ job.status }}
           SLACK_CHANNEL: pipeline-status-notification
+          SLACK_TITLE: "${{ inputs.projectName }} - TAG number: ${{ steps.docker_gen.outputs.docker_tag }}"
   
