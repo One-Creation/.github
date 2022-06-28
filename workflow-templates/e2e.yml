@@ -27,13 +27,34 @@ on:
       - e2e-event
 
 jobs:
-  one-creation-e2e:
+  initialization:
+    runs-on: ubuntu-latest
+    outputs:
+      projectName: ${{ steps.init.outputs.projectName }}
+      projectAlias: ${{ steps.init.outputs.projectAlias }}    
+      namespace: ${{ steps.init.outputs.namespace }}
+      origin_ref: ${{ steps.init.outputs.origin_ref }}    
+      tag: ${{ steps.init.outputs.tag }}
+      event_name: ${{ steps.init.outputs.event_name }}          
+    steps:    
+       - name: Initialization
+         id: init
+         run: |
+          echo "::set-output name=projectName::${{ inputs.projectName }}"
+          echo "::set-output name=projectAlias::${{ inputs.projectAlias }}"
+          echo "::set-output name=namespace::${{ inputs.namespace }}"
+          echo "::set-output name=tag::${{ inputs.tag }}"
+          echo "::set-output name=origin_ref::${{ inputs.origin_ref }}"          
+          echo "::set-output name=event_name::${{ inputs.event_name }}"                 
+  one-creation-e2e:  
+    needs: initialization
     uses: One-Creation/.github/.github/workflows/e2e.yml@main    
     with:
-      projectName: ${{inputs.projectName}}
-      projectAlias: ${{inputs.projectAlias}}
-      namespace: ${{inputs.namespace}}
-      tag: ${{inputs.tag}}      
-      origin_ref: ${{inputs.origin_ref}}
-      event_name: ${{inputs.event_name}}      
+      projectName: ${{needs.initialization.outputs.projectName}}
+      projectAlias: ${{needs.initialization.outputs.projectAlias}}
+      namespace: ${{needs.initialization.outputs.namespace}}
+      tag: ${{needs.initialization.outputs.tag}}  
+      origin_ref: ${{needs.initialization.outputs.origin_ref}}
+      event_name: ${{needs.initialization.outputs.event_name}}
     secrets: inherit
+        
