@@ -141,32 +141,32 @@ jobs:
         with:
           step: save
           
-  #    - name: Invoke E2E workflow and wait for conclusion
-  #      uses: aurelien-baudet/workflow-dispatch@v2
-  #      if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
-  #      with:
-  #        workflow: e2e.yml
-  #        token: ${{ secrets.ONECREATION_PAT_TOKEN }}        
-  #        wait-for-completion: true
-  #        display-workflow-run-url: true
-  #        ref: develop
-  #        inputs: '{ "projectName": "${{ inputs.projectName }}", "projectAlias": "${{ inputs.projectAlias }}",  "namespace": "${{ inputs.namespace }}", "origin_ref": " ${{ github.ref }}", "tag": "${{ steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}" }'
-
-      - name: Dispatch action to deploy project     
+      - name: Invoke E2E workflow and wait for conclusion
+        uses: aurelien-baudet/workflow-dispatch@v2
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
-        uses: peter-evans/repository-dispatch@v2
         with:
-          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
-          event-type: deploy-event
-          client-payload: '{"ref": "${{  github.ref}}", "image": "${{  steps.docker_gen.outputs.docker_image }}", "tag": "${{  steps.docker_gen.outputs.docker_tag  }}", "event_name": "${{  github.event_name }}"}'
+          workflow: e2e.yml
+          token: ${{ secrets.ONECREATION_PAT_TOKEN }}        
+          wait-for-completion: true
+          display-workflow-run-url: true
+          ref: develop
+          inputs: '{ "projectName": "${{ inputs.projectName }}", "projectAlias": "${{ inputs.projectAlias }}",  "namespace": "${{ inputs.namespace }}", "origin_ref": " ${{ github.ref }}", "tag": "${{ steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}" }'
 
-#       - name: Notify Status of build in Slack
-#         if: "always() && !contains(github.event.head_commit.message,'maven-release-plugin')"
-#         uses: rtCamp/action-slack-notify@v2
-#         env:
-#           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-#           SLACK_COLOR: ${{ job.status }}
-#           SLACK_CHANNEL: pipeline-status-notification
-#           SLACK_TITLE: "${{ inputs.projectName }} - TAG number: ${{ steps.docker_gen.outputs.docker_tag }}"
-#           SLACK_MESSAGE : ${{ github.event.head_commit.message}}
+#       - name: Dispatch action to deploy project     
+#         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
+#         uses: peter-evans/repository-dispatch@v2
+#         with:
+#           token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+#           event-type: deploy-event
+#           client-payload: '{"ref": "${{  github.ref}}", "image": "${{  steps.docker_gen.outputs.docker_image }}", "tag": "${{  steps.docker_gen.outputs.docker_tag  }}", "event_name": "${{  github.event_name }}"}'
+
+      - name: Notify Status of build in Slack
+        if: "always() && !contains(github.event.head_commit.message,'maven-release-plugin')"
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_CHANNEL: pipeline-status-notification
+          SLACK_TITLE: "${{ inputs.projectName }} - TAG number: ${{ steps.docker_gen.outputs.docker_tag }}"
+          SLACK_MESSAGE : ${{ github.event.head_commit.message}}
   
