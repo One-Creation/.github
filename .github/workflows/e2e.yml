@@ -183,11 +183,11 @@ jobs:
         run: yarn test:e2eSanity
         working-directory: oc-drm-test-automation
 
-      - name: Run E2E
-#         we only run E2E if it's a pr to main branch
-        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
-        run: yarn test:${{  steps.init.outputs.origin_project_name }}
-        working-directory: oc-drm-test-automation
+#       - name: Run E2E
+# #         we only run E2E if it's a pr to main branch
+#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')
+#         run: yarn test:${{  steps.init.outputs.origin_project_name }}
+#         working-directory: oc-drm-test-automation
 
       - name: Allure Report Generation for Automated Test Execution
         uses: simple-elf/allure-report-action@master
