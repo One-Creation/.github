@@ -178,6 +178,7 @@ jobs:
           kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep automation) 8080:8080&
           kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep marketplace) 8091:8091&
           kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep user) 8092:8091&
+          kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep oc-encryption-ms) 8093:8093&
         working-directory: oc-drm-test-automation
 
       - name: Compile E2E tests
