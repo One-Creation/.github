@@ -186,53 +186,53 @@ jobs:
         run: npm install --force
         working-directory: oc-drm-test-automation
 
-   #   - name: Run E2E Sanities
+      - name: Run E2E Sanities
+#         we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true')
+        run: yarn test:e2eSanity
+        working-directory: oc-drm-test-automation
+
+      - name: Run E2E
+ #         we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true')
+        run: yarn test:e2e-${{  steps.init.outputs.origin_project_name }}
+        working-directory: oc-drm-test-automation
+
+      - name: Allure Report Generation for Automated Test Execution
+        uses: simple-elf/allure-report-action@master
         # we only run E2E if it's a pr to main branch
-  #      if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true')
-  #      run: yarn test:e2eSanity
-  #      working-directory: oc-drm-test-automation
-
-#       - name: Run E2E
-# #         we only run E2E if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true')
-#         run: yarn test:e2e-${{  steps.init.outputs.origin_project_name }}
-#         working-directory: oc-drm-test-automation
-
-    #  - name: Allure Report Generation for Automated Test Execution
-     #   uses: simple-elf/allure-report-action@master
-      #  # we only run E2E if it's a pr to main branch
-       # if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') &&  contains( steps.init.outputs.run_e2e, 'true')
-        #id: allure-report
-     #   with:
-      #    allure_results: oc-drm-test-automation/reports/allure-results
-      #    gh_pages: gh-pages
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') &&  contains( steps.init.outputs.run_e2e, 'true')
+        id: allure-report
+        with:
+          allure_results: oc-drm-test-automation/reports/allure-results
+          gh_pages: gh-pages
           #allure_report: allure-report
-       #   allure_history: oc-drm-test-automation/reports/allure-history
-        #  keep_reports: 10
+          allure_history: oc-drm-test-automation/reports/allure-history
+          keep_reports: 10
 
-#      - name: Test Automation Reports
- #       if: ${{ contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') && (success() || failure()) }}
-  #      run: |
-   #        echo "Regenerating all the non-Allure reports..."
-    #       echo "> Dashboard..."
-     #      yarn generateDashboard
-      #     echo "> Test Coverage..."
-       #    yarn generateTestCoverageReport
-        #   echo "> API Coverage..."
-   #        yarn generateApiCoverageReport
-  #         echo "> Story Coverage..."
-  #         yarn generateStoryCoverageReport
-  #         echo "> Story to API Coverage..."
-  #         yarn generateStoryToApiReport
-  #         echo "...done"
-  #         echo "-------------------------------"
-  #         curl -o allure-2.14.0.tgz -Ls https://github.com/allure-framework/allure2/releases/download/2.14.0/allure-2.14.0.tgz
-  #         tar -zxvf allure-2.14.0.tgz -C /opt/
-  #         sudo ln -s /opt/allure-2.14.0/bin/allure /usr/bin/allure
-  #         allure --version
-  #         echo "Regenerating Allure website..."
-  #         yarn allureGenerate
-  #      working-directory: oc-drm-test-automation    
+      - name: Test Automation Reports
+        if: ${{ contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') && (success() || failure()) }}
+        run: |
+           echo "Regenerating all the non-Allure reports..."
+           echo "> Dashboard..."
+           yarn generateDashboard
+           echo "> Test Coverage..."
+           yarn generateTestCoverageReport
+           echo "> API Coverage..."
+           yarn generateApiCoverageReport
+           echo "> Story Coverage..."
+           yarn generateStoryCoverageReport
+           echo "> Story to API Coverage..."
+           yarn generateStoryToApiReport
+           echo "...done"
+           echo "-------------------------------"
+           curl -o allure-2.14.0.tgz -Ls https://github.com/allure-framework/allure2/releases/download/2.14.0/allure-2.14.0.tgz
+           tar -zxvf allure-2.14.0.tgz -C /opt/
+           sudo ln -s /opt/allure-2.14.0/bin/allure /usr/bin/allure
+           allure --version
+           echo "Regenerating Allure website..."
+           yarn allureGenerate
+        working-directory: oc-drm-test-automation    
         
       - name: Get Allure history
         # we only run E2E if it's a pr to main branch
@@ -243,15 +243,15 @@ jobs:
           ref: gh-pages
           path: gh-pages             
         
-   #   - name: Deploy report to Github Pages
-   #     # we only run E2E if it's a pr to main branch
-   #     if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true')
-   #     uses: peaceiris/actions-gh-pages@v3
-   #     with:
-    #      personal_token: ${{ secrets.ONECREATION_PAT_TOKEN }}
-    #      github_token: ${{ secrets.GITHUB_TOKEN }}
-    #      publish_branch: gh-pages
-    #      publish_dir: oc-drm-test-automation/reports/allure-site
+      - name: Deploy report to Github Pages
+        # we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true')
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: oc-drm-test-automation/reports/allure-site
 
       - name: Uninstall temporal data
         if: always()
