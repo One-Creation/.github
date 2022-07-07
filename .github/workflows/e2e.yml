@@ -189,6 +189,7 @@ jobs:
         run: |
           kubectl config set-context --current --namespace=$NAMESPACE
           kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep marketplace) 8091:8091&
+          curl http://localhost:8091/v3/api-docs
         working-directory: oc-drm-test-automation
         
       - name: Port Forward from cluster for user
@@ -202,6 +203,7 @@ jobs:
         run: |
           kubectl config set-context --current --namespace=$NAMESPACE
           kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep user) 8092:8091&
+          curl http://localhost:8092/v3/api-docs
         working-directory: oc-drm-test-automation
       
       - name: Port Forward from cluster for Encryption
@@ -215,6 +217,7 @@ jobs:
         run: |
           kubectl config set-context --current --namespace=$NAMESPACE
           kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep oc-encryption-ms) 8093:8093&
+          curl http://localhost:8093/v3/api-docs
         working-directory: oc-drm-test-automation        
         
       - name: Compile E2E tests
