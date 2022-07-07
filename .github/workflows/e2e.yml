@@ -233,7 +233,12 @@ jobs:
       - name: Run E2E Sanities
 #         we only run E2E if it's a pr to main branch
         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true')
-        run: yarn test:e2eSanity
+        run: | 
+          kubectl config set-context --current --namespace=$NAMESPACE
+          kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep marketplace
+          kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep marketplace) 8091:8091&
+          sleep 5
+          yarn test:e2eSanity
         working-directory: oc-drm-test-automation
 
 #       - name: Run E2E
