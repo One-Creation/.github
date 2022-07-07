@@ -164,7 +164,20 @@ jobs:
           helm dependency update
           helm upgrade --install oc-test-automation . --wait
         working-directory: oc-drm-kubernetes/helm/environments/genericSystemApplications/oc-test-automation/
-
+      - name: Port Forward from cluster  for Nginx
+        # we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')&&  contains( steps.init.outputs.run_e2e, 'true')
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NAMESPACE: ${{ inputs.namespace }}
+        run: |
+          kubectl config set-context --current --namespace=$NAMESPACE
+          kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep automation) 8080:8080&
+          sleep 5
+          curl http://localhost:8080/api/marketplace/actuator/info && true
+        working-directory: oc-drm-test-automation
       - name: Port Forward from cluster for user
         # we only run E2E if it's a pr to main branch
         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')&&  contains( steps.init.outputs.run_e2e, 'true')
