@@ -93,144 +93,135 @@ jobs:
           persist-credentials: false
           path: ./oc-drm-kubernetes
 
-#       - name: Create namespace in dev cluster
-#         # we only run E2E if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')  &&  contains( steps.init.outputs.run_e2e, 'true') 
-#         env:
-#           AWS_REGION: ${{ secrets.REGION }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           NAMESPACE: ${{ inputs.namespace }}          
-#         run: |
-#           aws eks update-kubeconfig --name ${{ secrets.EKS_INT }} --region  ${{ secrets.REGION }} 
-#           kubectl create namespace $NAMESPACE && true
-#           kubectl config set-context --current --namespace=$NAMESPACE
+      - name: Create namespace in dev cluster
+        # we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')  &&  contains( steps.init.outputs.run_e2e, 'true') 
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NAMESPACE: ${{ inputs.namespace }}          
+        run: |
+          aws eks update-kubeconfig --name ${{ secrets.EKS_INT }} --region  ${{ secrets.REGION }} 
+          kubectl create namespace $NAMESPACE && true
+          kubectl config set-context --current --namespace=$NAMESPACE
 
-#       - name: Prepare Helm Remote Repository
-#         # we only run E2E if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')  &&  contains( steps.init.outputs.run_e2e, 'true') 
-#         run: helm repo add one-creation ${{ secrets.ONE_CREATION_BASE_CHART_URL }}
+      - name: Prepare Helm Remote Repository
+        # we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')  &&  contains( steps.init.outputs.run_e2e, 'true') 
+        run: helm repo add one-creation ${{ secrets.ONE_CREATION_BASE_CHART_URL }}
 
 
-#       - name: Install Onecreation System dependencies
-#         # we only run E2E if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') 
-#         env:
-#           AWS_REGION: ${{ secrets.REGION }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           NAMESPACE: ${{ inputs.namespace }}          
-#         run: |
-#           kubectl config set-context --current --namespace=$NAMESPACE
-#           helm dependency update
-#           helm upgrade --install onecreation-system  . --set oc-ext-secrets.env.AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --set oc-ext-secrets.env.AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY --set oc-ext-secrets.nameOverride=oc-ext-secrets-$NAMESPACE --set oc-ext-secrets.serviceAccountName=ocextsecret-$NAMESPACE  --wait
-#         working-directory: oc-drm-kubernetes/helm/environments/dev/system
+      - name: Install Onecreation System dependencies
+        # we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') 
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NAMESPACE: ${{ inputs.namespace }}          
+        run: |
+          kubectl config set-context --current --namespace=$NAMESPACE
+          helm dependency update
+          helm upgrade --install onecreation-system  . --set oc-ext-secrets.env.AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --set oc-ext-secrets.env.AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY --set oc-ext-secrets.nameOverride=oc-ext-secrets-$NAMESPACE --set oc-ext-secrets.serviceAccountName=ocextsecret-$NAMESPACE  --wait
+        working-directory: oc-drm-kubernetes/helm/environments/dev/system
 
-#       - name: Install Onecreation
-#         # we only run E2E if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') 
-#         env:
-#           AWS_REGION: ${{ secrets.REGION }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           NAMESPACE: ${{ inputs.namespace }}
-#         run: |
-#           kubectl config set-context --current --namespace=$NAMESPACE
-#           chmod 755 install.sh
-#           kubectl delete secret onecreationpullimage && true
-#           kubectl create secret docker-registry onecreationpullimage  --docker-server=${{ secrets.DOCKER_REPO }} --docker-username=AWS --docker-password=$(aws ecr get-login-password --region eu-central-1)
-#           kubectl create clusterrolebinding system:serviceaccount:default:default --clusterrole=cluster-admin --serviceaccount=default:default && true
-#           export EXTERNALSET="--set global.image.pullSecrets.enabled=true --set global.image.pullSecrets.name=onecreationpullimage --set encryption.oc-vault-helm.fullnameOverride=oc-encrypion-ms-oc-vault-$NAMESPACE --set global.namespace.enabled=true --set global.namespace.value=$NAMESPACE --set ${{ inputs.projectAlias }}.${{ inputs.projectName }}.image.tag=${{ steps.init.outputs.docker_tag }}"
-#           sleep 5
-#           RELEASE_VERSION=$(ls -t -s -r ../charts/releases/values* | head -1 | cut -d '/' -f4 | sed 's/values-//' | sed 's/.yaml//' )
-#           ./install.sh $RELEASE_VERSION e2e ../charts/one-creation/
-#           sleep 10
-#           kubectl wait pods -n $NAMESPACE -l app.kubernetes.io/name=oc-drm-daml --for condition=ContainersReady --timeout=600s && true
-#           kubectl wait pods -n $NAMESPACE -l app.kubernetes.io/name=oc-drm-service --for condition=ContainersReady --timeout=300s && true
-#           kubectl wait pods -n $NAMESPACE -l app.kubernetes.io/name=oc-drm-aggregation-service --for condition=ContainersReady --timeout=300s && true
-#           kubectl get pods
-#         working-directory: oc-drm-kubernetes/helm/scripts
+      - name: Install Onecreation
+        # we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') 
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NAMESPACE: ${{ inputs.namespace }}
+        run: |
+          kubectl config set-context --current --namespace=$NAMESPACE
+          chmod 755 install.sh
+          kubectl delete secret onecreationpullimage && true
+          kubectl create secret docker-registry onecreationpullimage  --docker-server=${{ secrets.DOCKER_REPO }} --docker-username=AWS --docker-password=$(aws ecr get-login-password --region eu-central-1)
+          kubectl create clusterrolebinding system:serviceaccount:default:default --clusterrole=cluster-admin --serviceaccount=default:default && true
+          export EXTERNALSET="--set global.image.pullSecrets.enabled=true --set global.image.pullSecrets.name=onecreationpullimage --set encryption.oc-vault-helm.fullnameOverride=oc-encrypion-ms-oc-vault-$NAMESPACE --set global.namespace.enabled=true --set global.namespace.value=$NAMESPACE --set ${{ inputs.projectAlias }}.${{ inputs.projectName }}.image.tag=${{ steps.init.outputs.docker_tag }}"
+          sleep 5
+          RELEASE_VERSION=$(ls -t -s -r ../charts/releases/values* | head -1 | cut -d '/' -f4 | sed 's/values-//' | sed 's/.yaml//' )
+          ./install.sh $RELEASE_VERSION e2e ../charts/one-creation/
+          sleep 10
+          kubectl wait pods -n $NAMESPACE -l app.kubernetes.io/name=oc-drm-daml --for condition=ContainersReady --timeout=600s && true
+          kubectl wait pods -n $NAMESPACE -l app.kubernetes.io/name=oc-drm-service --for condition=ContainersReady --timeout=300s && true
+          kubectl wait pods -n $NAMESPACE -l app.kubernetes.io/name=oc-drm-aggregation-service --for condition=ContainersReady --timeout=300s && true
+          kubectl get pods
+        working-directory: oc-drm-kubernetes/helm/scripts
 
-#       - name: Install TestAutomation Nginx
-#         # we only run E2E if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') 
-#         env:
-#           AWS_REGION: ${{ secrets.REGION }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           NAMESPACE: ${{ inputs.namespace }}
-#         run: |
-#           kubectl config set-context --current --namespace=$NAMESPACE
-#           helm dependency update
-#           helm upgrade --install oc-test-automation . --wait
-#         working-directory: oc-drm-kubernetes/helm/environments/genericSystemApplications/oc-test-automation/
+      - name: Install TestAutomation Nginx
+        # we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') 
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NAMESPACE: ${{ inputs.namespace }}
+        run: |
+          kubectl config set-context --current --namespace=$NAMESPACE
+          helm dependency update
+          helm upgrade --install oc-test-automation . --wait
+        working-directory: oc-drm-kubernetes/helm/environments/genericSystemApplications/oc-test-automation/
 
-#       - name: Port Forward from cluster  for Nginx
-#         # we only run E2E if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')&&  contains( steps.init.outputs.run_e2e, 'true')
-#         env:
-#           AWS_REGION: ${{ secrets.REGION }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           NAMESPACE: ${{ inputs.namespace }}
-#         run: |
-#           kubectl config set-context --current --namespace=$NAMESPACE
-#           kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep automation) 8080:8080&
-#         working-directory: oc-drm-test-automation
+      - name: Port Forward from cluster for user
+        # we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')&&  contains( steps.init.outputs.run_e2e, 'true')
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NAMESPACE: ${{ inputs.namespace }}
+        run: |
+          kubectl config set-context --current --namespace=$NAMESPACE
+          kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep user) 8092:8091&
+          sleep 5          
+          curl http://localhost:8092/v3/api-docs
+        working-directory: oc-drm-test-automation
+     
+      - name: Port Forward from cluster for marketplace
+        # we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')&&  contains( steps.init.outputs.run_e2e, 'true')
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NAMESPACE: ${{ inputs.namespace }}
+        run: |
+          kubectl config set-context --current --namespace=$NAMESPACE
+          kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep marketplace
+          kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep marketplace) 8091:8091&
+          sleep 5
+          curl http://localhost:8091/actuator/health
+        working-directory: oc-drm-test-automation
 
-#       - name: Port Forward from cluster for marketplace
-#         # we only run E2E if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')&&  contains( steps.init.outputs.run_e2e, 'true')
-#         env:
-#           AWS_REGION: ${{ secrets.REGION }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           NAMESPACE: ${{ inputs.namespace }}
-#         run: |
-#           kubectl config set-context --current --namespace=$NAMESPACE
-#           kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep marketplace) 8091:8091&
-#           curl http://localhost:8091/v3/api-docs
-#         working-directory: oc-drm-test-automation
+      - name: Port Forward from cluster for Encryption
+         # we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')&&  contains( steps.init.outputs.run_e2e, 'true')
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NAMESPACE: ${{ inputs.namespace }}
+        run: |
+          kubectl config set-context --current --namespace=$NAMESPACE
+          kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep oc-encryption-ms) 8093:8093&
+          sleep 5
+          curl http://localhost:8093/actuator/health
+        working-directory: oc-drm-test-automation          
         
-#       - name: Port Forward from cluster for user
-#         # we only run E2E if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')&&  contains( steps.init.outputs.run_e2e, 'true')
-#         env:
-#           AWS_REGION: ${{ secrets.REGION }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           NAMESPACE: ${{ inputs.namespace }}
-#         run: |
-#           kubectl config set-context --current --namespace=$NAMESPACE
-#           kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep user) 8092:8091&
-#           curl http://localhost:8092/v3/api-docs
-#         working-directory: oc-drm-test-automation
-      
-#       - name: Port Forward from cluster for Encryption
-#         # we only run E2E if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')&&  contains( steps.init.outputs.run_e2e, 'true')
-#         env:
-#           AWS_REGION: ${{ secrets.REGION }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           NAMESPACE: ${{ inputs.namespace }}
-#         run: |
-#           kubectl config set-context --current --namespace=$NAMESPACE
-#           kubectl port-forward $(kubectl get pods --no-headers=true -o custom-columns=NAME_OF_MY_POD:.metadata.name |grep oc-encryption-ms) 8093:8093&
-#           curl http://localhost:8093/v3/api-docs
-#         working-directory: oc-drm-test-automation        
-        
-#       - name: Compile E2E tests
-#         # we only run E2E if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true')
-#         run: npm install --force
-#         working-directory: oc-drm-test-automation
+      - name: Compile E2E tests
+        # we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true')
+        run: npm install --force
+        working-directory: oc-drm-test-automation
 
-#       - name: Run E2E Sanities
-# #         we only run E2E if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true')
-#         run: yarn test:e2eSanity
-#         working-directory: oc-drm-test-automation
+      - name: Run E2E Sanities
+#         we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true')
+        run: yarn test:e2eSanity
+        working-directory: oc-drm-test-automation
 
 #       - name: Run E2E
 #  #         we only run E2E if it's a pr to main branch
@@ -238,41 +229,41 @@ jobs:
 #         run: yarn test:e2e-${{  steps.init.outputs.origin_project_name }}
 #         working-directory: oc-drm-test-automation
 
-#       - name: Allure Report Generation for Automated Test Execution
-#         uses: simple-elf/allure-report-action@master
-#         # we only run E2E if it's a pr to main branch
-#         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') &&  contains( steps.init.outputs.run_e2e, 'true')
-#         id: allure-report
-#         with:
-#           allure_results: oc-drm-test-automation/reports/allure-results
-#           gh_pages: gh-pages
-#           #allure_report: allure-report
-#           allure_history: oc-drm-test-automation/reports/allure-history
-#           keep_reports: 10
+      - name: Allure Report Generation for Automated Test Execution
+        uses: simple-elf/allure-report-action@master
+        # we only run E2E if it's a pr to main branch
+        if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') &&  contains( steps.init.outputs.run_e2e, 'true')
+        id: allure-report
+        with:
+          allure_results: oc-drm-test-automation/reports/allure-results
+          gh_pages: gh-pages
+          #allure_report: allure-report
+          allure_history: oc-drm-test-automation/reports/allure-history
+          keep_reports: 10
 
-#       - name: Test Automation Reports
-#         if: ${{ contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') && (success() || failure()) }}
-#         run: |
-#            echo "Regenerating all the non-Allure reports..."
-#            echo "> Dashboard..."
-#            yarn generateDashboard
-#            echo "> Test Coverage..."
-#            yarn generateTestCoverageReport
-#            echo "> API Coverage..."
-#            yarn generateApiCoverageReport
-#            echo "> Story Coverage..."
-#            yarn generateStoryCoverageReport
-#            echo "> Story to API Coverage..."
-#            yarn generateStoryToApiReport
-#            echo "...done"
-#            echo "-------------------------------"
-#            curl -o allure-2.14.0.tgz -Ls https://github.com/allure-framework/allure2/releases/download/2.14.0/allure-2.14.0.tgz
-#            tar -zxvf allure-2.14.0.tgz -C /opt/
-#            sudo ln -s /opt/allure-2.14.0/bin/allure /usr/bin/allure
-#            allure --version
-#            echo "Regenerating Allure website..."
-#            yarn allureGenerate
-#         working-directory: oc-drm-test-automation    
+      - name: Test Automation Reports
+        if: ${{ contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true') && (success() || failure()) }}
+        run: |
+           echo "Regenerating all the non-Allure reports..."
+           echo "> Dashboard..."
+           yarn generateDashboard
+           echo "> Test Coverage..."
+           yarn generateTestCoverageReport
+           echo "> API Coverage..."
+           yarn generateApiCoverageReport
+           echo "> Story Coverage..."
+           yarn generateStoryCoverageReport
+           echo "> Story to API Coverage..."
+           yarn generateStoryToApiReport
+           echo "...done"
+           echo "-------------------------------"
+           curl -o allure-2.14.0.tgz -Ls https://github.com/allure-framework/allure2/releases/download/2.14.0/allure-2.14.0.tgz
+           tar -zxvf allure-2.14.0.tgz -C /opt/
+           sudo ln -s /opt/allure-2.14.0/bin/allure /usr/bin/allure
+           allure --version
+           echo "Regenerating Allure website..."
+           yarn allureGenerate
+        working-directory: oc-drm-test-automation    
         
       - name: Get Allure history
         # we only run E2E if it's a pr to main branch
