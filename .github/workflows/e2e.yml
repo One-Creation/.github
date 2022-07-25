@@ -123,7 +123,7 @@ jobs:
 #         run: |
 #           kubectl config set-context --current --namespace=$NAMESPACE
 #           helm dependency update
-#           helm upgrade --install onecreation-system  . --set oc-ext-secrets.env.AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --set oc-ext-secrets.env.AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY --set oc-ext-secrets.nameOverride=oc-ext-secrets-$NAMESPACE --set oc-ext-secrets.serviceAccountName=ocextsecret-$NAMESPACE  --wait
+#           helm upgrade --install onecreation-system  . --set oc-ext-secrets.env.AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_SDLC --set oc-ext-secrets.env.AWS_REGION=$AWS_REGION--set oc-ext-secrets.env.AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_SDLC --set oc-ext-secrets.nameOverride=oc-ext-secrets-$NAMESPACE --set oc-ext-secrets.serviceAccountName=ocextsecret-$NAMESPACE  --wait
 #         working-directory: oc-drm-kubernetes/helm/environments/dev/system
 
 #       - name: Install Onecreation
