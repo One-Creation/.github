@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: One-Creation/oc-drm-kubernetes
-          ref: refs/heads/master
+          ref: refs/heads/develop
           token:  ${{ secrets.ONECREATION_PAT_TOKEN }}
           persist-credentials: false
           path: ./oc-drm-kubernetes
@@ -57,7 +57,7 @@ jobs:
           github_token: ${{ secrets.ONECREATION_PAT_TOKEN }}
           message: Updating release details
           repository: One-Creation/oc-drm-kubernetes
-          branch: master
+          branch: develop
           empty: true
           directory: oc-drm-kubernetes/helm/charts/releases
 
