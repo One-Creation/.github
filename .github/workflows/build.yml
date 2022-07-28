@@ -86,7 +86,7 @@ jobs:
  
       - name: Build and Release
         id: release
-        if: "!contains(github.event.head_commit.message,'maven-release-plugin') && contains(steps.init.outputs.origin_event_name,'push') && !contains(${{ github.head_ref }}, 'dependabot')"
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin') && contains(steps.init.outputs.origin_event_name,'push')"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
@@ -115,7 +115,7 @@ jobs:
       - name: Docker generation
         # we only run if it's a pr to main branch
         id: docker_gen
-        if: "!contains(github.event.head_commit.message,'maven-release-plugin') && !contains(${{ github.head_ref }}, 'dependabot')"
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin') "
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           AWS_REGION: ${{ secrets.REGION }}
