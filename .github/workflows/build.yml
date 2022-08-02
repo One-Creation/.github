@@ -143,7 +143,7 @@ jobs:
           
       - name: Invoke E2E workflow and wait for conclusion
         uses: aurelien-baudet/workflow-dispatch@v2
-        if: "!contains(github.event.head_commit.message,'maven-release-plugin') && !github.actor == 'dependabot[bot]'"
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         with:
           workflow: e2e.yml
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}        
@@ -153,7 +153,7 @@ jobs:
           inputs: '{ "projectName": "${{ inputs.projectName }}", "projectAlias": "${{ inputs.projectAlias }}",  "namespace": "${{ inputs.namespace }}", "origin_ref": " ${{ github.ref }}", "tag": "${{ steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}" }'
 
       - name: Notify Status of build in Slack
-        if: "always() && !contains(github.event.head_commit.message,'maven-release-plugin') && !github.actor == 'dependabot[bot]'"
+        if: "always() && !contains(github.event.head_commit.message,'maven-release-plugin')"
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
