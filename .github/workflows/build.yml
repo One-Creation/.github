@@ -154,7 +154,7 @@ jobs:
           inputs: '{ "projectName": "${{ inputs.projectName }}", "projectAlias": "${{ inputs.projectAlias }}",  "namespace": "${{ inputs.namespace }}", "origin_ref": " ${{ github.ref }}", "tag": "${{ steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}" }'
 
       - name: Notify Status of build in Slack
-        if: "always() && !contains(github.event.head_commit.message,'maven-release-plugin')  &&  !contains(github.event.head_commit.message,'Bump')}"
+        if: "always() && !contains(github.event.head_commit.message,'maven-release-plugin')  &&  !contains(github.event.head_commit.message,'Bump')"
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
