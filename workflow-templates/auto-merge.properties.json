@@ -1,0 +1,7 @@
+{
+    "name": "Dependabot Auto Merge PR's",
+    "description": "Use in case dependabot is activated and creating new Pr's",
+    "categories": [
+        "Security"
+    ]
+}
