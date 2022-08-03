@@ -108,7 +108,7 @@ jobs:
         env:      
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+          SONAR_ORGANIZATION: one-creation
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROJECT_KEY: One-Creation_${{ inputs.projectName }}
         run: mvn sonar:sonar -Dsonar.organization=${{ env.SONAR_ORGANIZATION }} -Dsonar.projectKey=${{ env.PROJECT_KEY }} -Dsonar.host.url=${{ env.SONAR_HOST_URL }} -Dsonar.login=${{ env.SONAR_TOKEN }}
