@@ -1,0 +1,6 @@
+name: Dependabot Pull Request Approve and Merge
+on: pull_request_target
+    
+jobs:
+  dependabot:
+    uses: One-Creation/.github/.github/workflows/auto-merge.yml@main
