@@ -4,3 +4,4 @@ on: pull_request_target
 jobs:
   dependabot:
     uses: One-Creation/.github/.github/workflows/auto-merge.yml@main
+    secrets: inherit    
