@@ -86,7 +86,7 @@ jobs:
  
       - name: Build and Release
         id: release
-        if: "!contains(github.event.head_commit.message,'maven-release-plugin') && contains(steps.init.outputs.origin_event_name,'push')"
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin') && contains(steps.init.outputs.origin_event_name,'push') && !${{ github.actor == 'dependabot[bot]' }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      
@@ -116,7 +116,7 @@ jobs:
       - name: Docker generation
         # we only run if it's a pr to main branch
         id: docker_gen
-        if: "!contains(github.event.head_commit.message,'maven-release-plugin') "
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')  && !${{ github.actor == 'dependabot[bot]' }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           AWS_REGION: ${{ secrets.REGION }}
@@ -144,7 +144,7 @@ jobs:
           
       - name: Invoke E2E workflow and wait for conclusion
         uses: aurelien-baudet/workflow-dispatch@v2
-        if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin')  && !${{ github.actor == 'dependabot[bot]' }}"
         with:
           workflow: e2e.yml
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}        
@@ -154,7 +154,7 @@ jobs:
           inputs: '{ "projectName": "${{ inputs.projectName }}", "projectAlias": "${{ inputs.projectAlias }}",  "namespace": "${{ inputs.namespace }}", "origin_ref": " ${{ github.ref }}", "tag": "${{ steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}" }'
 
       - name: Notify Status of build in Slack
-        if: "always() && !contains(github.event.head_commit.message,'maven-release-plugin')"
+        if: "always() && !contains(github.event.head_commit.message,'maven-release-plugin')  && !${{ github.actor == 'dependabot[bot]' }}"
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
