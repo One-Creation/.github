@@ -1,4 +1,5 @@
-on: pull_request_target
+on:
+  workflow_call:
 
 permissions:
   pull-requests: write
