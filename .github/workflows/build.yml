@@ -29,15 +29,6 @@ jobs:
           echo "::set-output name=origin_project::${{ inputs.projectName }}"
           echo "::set-output name=origin_event_name::${{ github.event_name  }}"
 
-      - name: Get Current PR
-        id: prDetails
-        # You may pin to the exact commit or the version.
-        # uses: everpcpc/current-pr-action@1a120de4eb7b1abcba5c7ea095f762baf864dade
-        uses: everpcpc/current-pr-action@v1
-        with:
-          # GitHub Token
-          token:  ${{ secrets.ONECREATION_PAT_TOKEN }}
-
       - name: Set up JDK 13
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         uses: actions/setup-java@v3
@@ -125,7 +116,7 @@ jobs:
       - name: Docker generation
         # we only run if it's a pr to main branch
         id: docker_gen
-        if: "!contains(github.event.head_commit.message,'maven-release-plugin')  && !contains(steps.prDetails.outputs.title,'Bump')"
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin') "
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           AWS_REGION: ${{ secrets.REGION }}
@@ -153,7 +144,7 @@ jobs:
           
       - name: Invoke E2E workflow and wait for conclusion
         uses: aurelien-baudet/workflow-dispatch@v2
-        if: "!contains(github.event.head_commit.message,'maven-release-plugin')  && !contains(steps.prDetails.outputs.title,'Bump')"
+        if: "!contains(github.event.head_commit.message,'maven-release-plugin') "
         with:
           workflow: e2e.yml
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}        
@@ -163,7 +154,7 @@ jobs:
           inputs: '{ "projectName": "${{ inputs.projectName }}", "projectAlias": "${{ inputs.projectAlias }}",  "namespace": "${{ inputs.namespace }}", "origin_ref": " ${{ github.ref }}", "tag": "${{ steps.docker_gen.outputs.docker_tag }}", "event_name": "${{ github.event_name }}" }'
 
       - name: Notify Status of build in Slack
-        if: "always() && !contains(github.event.head_commit.message,'maven-release-plugin') && !contains(steps.prDetails.outputs.title,'Bump')"
+        if: "always() && !contains(github.event.head_commit.message,'maven-release-plugin')"
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
