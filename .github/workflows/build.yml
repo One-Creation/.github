@@ -131,8 +131,8 @@ jobs:
           DOCKER=${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_ORGANIZATION }}/${{ inputs.projectName}}:$PROJECT_VERSION_BUILD
           docker tag ${{ inputs.projectName}}:$PROJECT_VERSION_BUILD $DOCKER
           docker push $DOCKER
-          echo "docker_tag=docker_tag::$PROJECT_VERSION_BUILD" >> $GITHUB_OUTPUT    
-          echo "name=docker_image::$DOCKER" >> $GITHUB_OUTPUT    
+          echo "docker_tag=$PROJECT_VERSION_BUILD" >> $GITHUB_OUTPUT    
+          echo "docker_image=$DOCKER" >> $GITHUB_OUTPUT    
         working-directory: ./target
    
       - name: Save Maven cache
