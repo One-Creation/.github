@@ -24,11 +24,10 @@ jobs:
         #We set the values in the output to be able to use them later
         run: |
           git config --global user.name 'gh-devops-bot'
-          git config --global user.email 'dev-ops-bot@onecreation.com'        
-          echo "::set-output name=origin_ref::${{ github.ref }}"
-          echo "::set-output name=origin_project::${{ inputs.projectName }}"
-          echo "::set-output name=origin_event_name::${{ github.event_name  }}"
-
+          git config --global user.email 'dev-ops-bot@onecreation.com'   
+          echo "origin_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+          echo "origin_project=${{  inputs.projectName  }}" >> $GITHUB_OUTPUT
+          echo "origin_event_name=${{ github.event_name }}" >> $GITHUB_OUTPUT          
       - name: Set up JDK 13
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         uses: actions/setup-java@v3
