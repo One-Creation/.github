@@ -24,10 +24,10 @@ jobs:
         id: init
         #We set the values in the output to be able to use them later
         run: |
-          echo "::set-output name=docker_tag::${{ github.event.client_payload.tag  }}"
-          echo "::set-output name=docker_image::${{ github.event.client_payload.image  }} "
-          echo "::set-output name=origin_ref::${{ github.event.client_payload.ref  }}"
-          echo "::set-output name=origin_event_name::${{ github.event.client_payload.event_name  }}"
+          echo "docker_tag=${{ github.event.client_payload.event_name }}" >> $GITHUB_OUTPUT
+          echo "docker_image=${{ github.event.client_payload.image }}" >> $GITHUB_OUTPUT
+          echo "origin_ref=${{  github.event.client_payload.ref  }}" >> $GITHUB_OUTPUT
+          echo "origin_event_name=${{ github.event.client_payload.event_name }}" >> $GITHUB_OUTPUT        
 
       - name: Checkout One Creation Kubernetes repository
         # we only deploy if it's a merge to main branch
