@@ -32,7 +32,7 @@ jobs:
       - name: Checkout One Creation Kubernetes repository
         # we only deploy if it's a merge to main branch
         if: contains(steps.init.outputs.origin_event_name, 'push')
-        uses: actions/checkout@v3.1.1
+        uses: actions/checkout@v3
         with:
           repository: One-Creation/oc-drm-kubernetes
           ref: refs/heads/develop
