@@ -32,7 +32,7 @@ jobs:
       - name: Checkout One Creation Kubernetes repository
         # we only deploy if it's a merge to main branch
         if: contains(steps.init.outputs.origin_event_name, 'push')
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.1.1
         with:
           repository: One-Creation/oc-drm-kubernetes
           ref: refs/heads/develop
@@ -47,7 +47,8 @@ jobs:
         run: |
           RELEASE_VERSION=$(ls -t -s -r ../charts/releases/values* | head -1 | cut -d '/' -f4 )
           python UpdateReleaseImages.py -r  $RELEASE_VERSION -s ${{ inputs.projectName }} -t ${{  steps.init.outputs.docker_tag  }}  
-          echo "::set-output name=release_version::$RELEASE_VERSION"
+          echo "release_version=$RELEASE_VERSION" >> $GITHUB_OUTPUT      
+
         working-directory: oc-drm-kubernetes/helm/scripts
 
       - name: Commit Changes on Kubernetes repo
