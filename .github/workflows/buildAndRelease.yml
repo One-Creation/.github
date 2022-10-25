@@ -22,18 +22,18 @@ jobs:
           git config --global user.email 'dev-ops-bot@onecreation.com'        
           echo "origin_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
           echo "origin_project=${{  inputs.projectName  }}" >> $GITHUB_OUTPUT
-          echo "origin_event_name=${{ github.event_name }}" >> $GITHUB_OUTPUT
+          echo "origin_event_name=${{ github.event_name }}" >> $GITHUB_OUTPUT 
           
       - name: Set up JDK 13
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v3.6.0
         with:
           java-version: 13
           distribution: 'zulu'
   
       - name: Code checkout
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.1.0
         with:
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}
     
@@ -62,7 +62,7 @@ jobs:
 
       - name: Restore Maven cache
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
-        uses: skjolber/maven-cache-github-action@v1
+        uses: skjolber/maven-cache-github-action@v1.1
         with:
           step: restore
 
@@ -104,11 +104,11 @@ jobs:
           mvn release:perform -Dmaven.tests.skip=true -DskipTests=true -DlocalCheckout=true
           git pull
           git push
-          echo "name=closed_version::$VERSION" >> $GITHUB_OUTPUT
-
+          echo "closed_version=$VERSION" >> $GITHUB_OUTPUT  
+        
       - name: Save Maven cache
         if: always()
-        uses: skjolber/maven-cache-github-action@v1
+        uses: skjolber/maven-cache-github-action@v1.1
         with:
           step: save
           
