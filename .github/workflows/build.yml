@@ -30,14 +30,14 @@ jobs:
           echo "origin_event_name=${{ github.event_name }}" >> $GITHUB_OUTPUT       
       - name: Set up JDK 13
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v3.6.0
         with:
           java-version: 13
           distribution: 'zulu'
   
       - name: Code checkout
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.1.0
         with:
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}
     
@@ -66,7 +66,7 @@ jobs:
 
       - name: Restore Maven cache
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
-        uses: skjolber/maven-cache-github-action@v1
+        uses: skjolber/maven-cache-github-action@v1.1
         with:
           step: restore
 
@@ -137,12 +137,12 @@ jobs:
    
       - name: Save Maven cache
         if: always()
-        uses: skjolber/maven-cache-github-action@v1
+        uses: skjolber/maven-cache-github-action@v1.1
         with:
           step: save
           
       - name: Invoke E2E workflow and wait for conclusion
-        uses: aurelien-baudet/workflow-dispatch@v2
+        uses: aurelien-baudet/workflow-dispatch@v2.1.1
         if: "!contains(github.event.head_commit.message,'maven-release-plugin') "
         with:
           workflow: e2e.yml
