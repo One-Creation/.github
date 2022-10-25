@@ -99,7 +99,7 @@ jobs:
           mvn release:perform -U -Dmaven.tests.skip=true -DskipTests=true -DlocalCheckout=true
           git pull
           git push 
-          echo "name=closed_version::$VERSION" >> $GITHUB_OUTPUT             
+          echo "closed_version=$VERSION" >> $GITHUB_OUTPUT             
  
       - name: Quality Gate
         # we only run if it's a pr to main branch
