@@ -5,7 +5,10 @@ on:
       projectName:
         required: true
         type: string
-   
+      javaVersion:
+        required: false
+        type: string   
+        default: 13   
 jobs:
   build:
     name: Build
@@ -24,11 +27,11 @@ jobs:
           echo "origin_project=${{  inputs.projectName  }}" >> $GITHUB_OUTPUT
           echo "origin_event_name=${{ github.event_name }}" >> $GITHUB_OUTPUT 
           
-      - name: Set up JDK 13
+      - name: Set up JDK
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         uses: actions/setup-java@v3.6.0
         with:
-          java-version: 13
+          java-version: ${{  inputs.javaVersion  }}
           distribution: 'zulu'
   
       - name: Code checkout
