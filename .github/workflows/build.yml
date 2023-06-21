@@ -32,7 +32,7 @@ jobs:
           echo "origin_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
           echo "origin_project=${{  inputs.projectName  }}" >> $GITHUB_OUTPUT
           echo "origin_event_name=${{ github.event_name }}" >> $GITHUB_OUTPUT       
-      - name: Set up JDK 13
+      - name: Set up JDK
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         uses: actions/setup-java@v3.6.0
         with:
