@@ -76,9 +76,9 @@ jobs:
 
       - name: Remove old data
         run: |
-          ls  /home/runner/.m2/repository/com/one-creation/oc-drm-daml/
-          rm -r -f  /home/runner/.m2/repository/com/one-creation/oc-drm-daml/
-          ls /home/runner/.m2/repository/com/one-creation/oc-drm-daml/
+          ls  /home/runner/.m2/repository/
+          rm -r -f  /home/runner/.m2/repository/
+          ls /home/runner/.m2/repository/
 
       - name: Format check
         # we only run if it's a pr to main branch
