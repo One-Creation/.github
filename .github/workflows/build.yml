@@ -67,13 +67,15 @@ jobs:
         env:
           REGION: ${{ secrets.REGION }}
         run: echo "CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain ${{ secrets.SONAR_DOMAIN }} --domain-owner ${{ secrets.DOMAIN_OWNER }} --query authorizationToken --region ${{ env.REGION }} --output text)" >> $GITHUB_ENV
-
+  
       - name: Restore Maven cache
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         uses: skjolber/maven-cache-github-action@v1.1
         with:
           step: restore
 
+      - name: Remove old data
+        run: rm -r -f /home/runner/.m2/repository/com
       - name: Format check
         # we only run if it's a pr to main branch
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')  && contains(steps.init.outputs.origin_event_name,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')"
