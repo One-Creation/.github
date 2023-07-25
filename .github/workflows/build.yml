@@ -74,12 +74,6 @@ jobs:
         with:
           step: restore
 
-      - name: Remove old data
-        run: |
-          ls  /home/runner/.m2/repository/
-          rm -r -f  /home/runner/.m2/repository
-          ls /home/runner/.m2/
-
       - name: Format check
         # we only run if it's a pr to main branch
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')  && contains(steps.init.outputs.origin_event_name,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request')"
