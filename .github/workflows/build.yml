@@ -128,7 +128,7 @@ jobs:
           test ${{ steps.release.outputs.closed_version }} && PROJECT_VERSION=${{ steps.release.outputs.closed_version }} || PROJECT_VERSION=`mvn -f ../pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout`          
           PROJECT_VERSION_BUILD="$PROJECT_VERSION"
           aws ecr get-login-password --region ${{ secrets.REGION }}| docker login ${{ secrets.DOCKER_REPO }} -u AWS --password-stdin
-          wget -O dd-java-agent.jar 'https://github.com/DataDog/dd-trace-java/releases/download/v0.97.0/dd-java-agent.jar'
+          wget -O dd-java-agent.jar 'https://github.com/DataDog/dd-trace-java/releases/download/v1.19.3/dd-java-agent-1.19.3.jar'
           test -e ../src/main/docker/Dockerfile && cp ../src/main/docker/Dockerfile DockerFile || cp ../Dockerfile DockerFile
           docker build -t ${{ inputs.projectName}}:$PROJECT_VERSION_BUILD -f DockerFile . 
           DOCKER=${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_ORGANIZATION }}/${{ inputs.projectName}}:$PROJECT_VERSION_BUILD
