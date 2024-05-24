@@ -47,12 +47,6 @@ jobs:
           username: ${{ secrets.AWS_ACCESS_KEY_ID }}
           password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Set env
-        run: | 
-          DATE=$(date +%s)
-          DOCKER_TAG="${{ inputs.projectName }}:$DATE"
-          echo "DATE=$DOCKER_TAG" >> $GITHUB_ENV
-
       - name: Extract branch name
         id: extract_branch
         shell: bash
@@ -82,7 +76,7 @@ jobs:
   
           echo "next_tag=${next_tag}" >> $GITHUB_ENV
   
-      - name: Determine versions
+      - name: Determine Docker Tag
         id: tag
         run: |
           short_sha=$(git rev-parse --short=8 HEAD)
@@ -109,8 +103,8 @@ jobs:
             echo "Tag $next_tag already exists..."
             echo "new_tag=false" >> $GITHUB_OUTPUT
           fi  
-          
-          echo "docker_tag=${next_tag}" >> $GITHUB_ENV
+
+          echo "docker_tag=${{ inputs.projectName }}:${next_tag}" >> $GITHUB_ENV
 
       - name: Build Docker Image
         if: github.event_name == 'pull_request'
