@@ -3,7 +3,7 @@ on:
     inputs:
       projectName:
         required: true
-        type: string    
+        type: string  
    
 jobs:
   build:
