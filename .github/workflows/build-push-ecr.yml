@@ -37,32 +37,37 @@ jobs:
           role-duration-seconds: 1200
           role-session-name: GitHubActionsOcDrmMarketplaceBuild
           
-      - name: Docker generation
+      - name: Docker Build 
+        if: github.event_name == 'pull_request' 
         # we only run if it's a pr to main branch
-        id: docker_gen
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          AWS_REGION: ${{ secrets.REGION }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        id: docker_build
         run: |    
           PROJECT_VERSION_BUILD="$PROJECT_VERSION"
           aws ecr get-login-password --region ${{ secrets.REGION }}| docker login ${{ secrets.DOCKER_REPO }} -u AWS --password-stdin
-          wget -O dd-java-agent.jar 'https://github.com/DataDog/dd-trace-java/releases/download/v1.19.3/dd-java-agent-1.19.3.jar'
+          test -e ../src/main/docker/Dockerfile && cp ../src/main/docker/Dockerfile DockerFile || cp ../Dockerfile DockerFile
+          docker build -t ${{ inputs.projectName}}:$PROJECT_VERSION_BUILD -f DockerFile . 
+
+      - name: Docker Push 
+        if: github.event_name == 'push' 
+        # we only run if it's a pr to main branch
+        id: docker_push
+        run: |    
+          PROJECT_VERSION_BUILD="$PROJECT_VERSION"
+          aws ecr get-login-password --region ${{ secrets.REGION }}| docker login ${{ secrets.DOCKER_REPO }} -u AWS --password-stdin
           test -e ../src/main/docker/Dockerfile && cp ../src/main/docker/Dockerfile DockerFile || cp ../Dockerfile DockerFile
           docker build -t ${{ inputs.projectName}}:$PROJECT_VERSION_BUILD -f DockerFile . 
           DOCKER=${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_ORGANIZATION }}/${{ inputs.projectName}}:$PROJECT_VERSION_BUILD
           docker tag ${{ inputs.projectName}}:$PROJECT_VERSION_BUILD $DOCKER
           docker push $DOCKER
           echo "docker_tag=$PROJECT_VERSION_BUILD" >> $GITHUB_OUTPUT    
-          echo "docker_image=$DOCKER" >> $GITHUB_OUTPUT    
-        working-directory: ./target
+          echo "docker_image=$DOCKER" >> $GITHUB_OUTPUT         
 
       - name: Notify Status of build in Slack
+        if: github.event_name == 'push' 
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_COLOR: ${{ job.status }}
           SLACK_CHANNEL: pipeline-status-notification
-          SLACK_TITLE: "${{ inputs.projectName }} - TAG number: ${{ steps.docker_gen.outputs.docker_tag }}"
+          SLACK_TITLE: "${{ inputs.projectName }} - TAG number: ${{ steps.docker_push.outputs.docker_tag }}"
           SLACK_MESSAGE : ${{ github.event.head_commit.message}}
