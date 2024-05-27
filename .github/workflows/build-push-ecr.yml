@@ -7,7 +7,7 @@ on:
    
 jobs:
   build:
-    name: Build
+    name: BuildAndPushToECR
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -114,7 +114,7 @@ jobs:
           context: .
           tags: ${{ env.docker_tag }}
           
-      - name: Build Docker Image
+      - name: Build and Push Docker Image
         if: github.event_name == 'push'
         id: docker_push
         uses: docker/build-push-action@v5
