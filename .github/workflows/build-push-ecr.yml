@@ -1,0 +1,134 @@
+on:
+  workflow_call:
+    inputs:
+      projectName:
+        required: true
+        type: string  
+   
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Initialization
+        id: init
+        #We set the values in the output to be able to use them later
+        run: |
+          git config --global user.name 'gh-devops-bot'
+          git config --global user.email 'dev-ops-bot@onecreation.com'   
+          echo "origin_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+          echo "origin_project=${{  inputs.projectName  }}" >> $GITHUB_OUTPUT
+          echo "origin_event_name=${{ github.event_name }}" >> $GITHUB_OUTPUT       
+  
+      - name: Code checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+    
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ secrets.REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-duration-seconds: 1200
+          role-session-name: GitHubActionsOcDrmMarketplaceBuild
+     
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to ECR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.AWS_ACCOUNT }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com
+          username: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Extract branch name
+        id: extract_branch
+        shell: bash
+        run: |
+          echo "branch_name=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
+        
+      - name: Tagging develop
+        if: ${{ env.branch_name }} == 'develop'
+        id: tag_develop
+        run: |
+          last_tag=$(git tag | sort -V | tail -1)
+          
+          if [ -z "${last_tag}" ]; then
+            next_tag="0.0.1"
+          else
+            prev=$(echo ${last_tag} | grep -Eo '[0-9]+$')
+            next=$(( prev += 1 ))
+            next_tag="0.0.${next}"
+          fi
+  
+          echo "Last tag: ${last_tag}"
+  
+          if [ -z "${next_tag}" ]; then
+              echo "Unable to determine next tag"
+              continue
+          fi
+  
+          echo "next_tag=${next_tag}" >> $GITHUB_ENV
+  
+      - name: Determine Docker Tag
+        id: tag
+        run: |
+          short_sha=$(git rev-parse --short=8 HEAD)
+          last_tag=$(git tag | sort -V | tail -1)
+  
+          if [ ${{ env.branch_name }} != "develop" ]; then
+            if [ -z "${last_tag}" ]; then
+              next_tag="0.0.1-${short_sha}"
+            else
+              next_tag="${last_tag}-${short_sha}"
+            fi
+          else
+            echo "Develop branch tagged with $next_tag"
+          fi 
+  
+          echo "Check if tag exists..."
+  
+          if [ -z "$(git tag -l $next_tag)" ]; then
+            echo "Tag $next_tag does not exist..."
+            echo "Creating tag ${next_tag}"
+            git tag ${next_tag}
+            echo "new_tag=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag $next_tag already exists..."
+            echo "new_tag=false" >> $GITHUB_OUTPUT
+          fi  
+
+          echo "docker_tag=${{ inputs.projectName }}:${next_tag}" >> $GITHUB_ENV
+
+      - name: Build Docker Image
+        if: github.event_name == 'pull_request'
+        id: docker_build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          tags: ${{ env.docker_tag }}
+          
+      - name: Build Docker Image
+        if: github.event_name == 'push'
+        id: docker_push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.docker_tag }}      
+
+      - name: Notify Status of build in Slack
+        if: github.event_name == 'push' 
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_CHANNEL: pipeline-status-notification
+          SLACK_TITLE: "${{ inputs.projectName }} - TAG Number: ${{ env.DOCKER_TAG }}"
+          SLACK_MESSAGE : ${{ github.event.head_commit.message}}
