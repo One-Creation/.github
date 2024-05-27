@@ -113,7 +113,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          tags: ${{ env.docker_tag }}
+          tags: |
+            ${{ env.docker_tag }}
+
           
       # - name: Push Docker Image
       #   # if: github.event_name == 'push'
@@ -128,8 +130,8 @@ jobs:
         # if: github.event_name == 'push'
         id: docker_push
         run: |
-          docker tag ${{ env.docker_tag }} 307126822414.dkr.ecr.eu-central-1.amazonaws.com/${{ env.docker_tag }}
-          docker push 307126822414.dkr.ecr.eu-central-1.amazonaws.com/${{ env.docker_tag }}
+          docker tag one-creation/oc-database-init:0.0.1-9b132bd4 307126822414.dkr.ecr.eu-central-1.amazonaws.com/one-creation/oc-database-init:0.0.1-9b132bd4
+          docker push 307126822414.dkr.ecr.eu-central-1.amazonaws.com/one-creation/oc-database-init:0.0.1-9b132bd4
 
       - name: Notify Status of build in Slack
         if: github.event_name == 'push' 
