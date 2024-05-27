@@ -116,7 +116,7 @@ jobs:
           tags: ${{ env.docker_tag }}
           
       - name: Push Docker Image
-        if: github.event_name == 'push'
+        # if: github.event_name == 'push'
         id: docker_push
         run: |
           DOCKER=${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_ORGANIZATION }}/${{ env.docker_tag }}
