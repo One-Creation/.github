@@ -117,6 +117,10 @@ jobs:
             ${{ env.docker_tag }}
             ${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_ORGANIZATION }}/${{ env.docker_tag }}
 
+      - name: docker login
+        run: |    
+          aws ecr get-login-password --region ${{ secrets.REGION }}| docker login ${{ secrets.DOCKER_REPO }} -u AWS --password-stdin
+
       - name: Push Docker Image
         id: docker_push
         uses: docker/build-push-action@v5
