@@ -115,21 +115,21 @@ jobs:
           context: .
           tags: ${{ env.docker_tag }}
           
-      - name: Push Docker Image
-        # if: github.event_name == 'push'
-        id: docker_push
-        run: |
-          DOCKER=${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_ORGANIZATION }}/${{ env.docker_tag }}
-          docker push ${{ env.ECR }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
-          docker tag ${{ env.docker_tag }} $DOCKER
-          docker push $DOCKER
-
       # - name: Push Docker Image
       #   # if: github.event_name == 'push'
       #   id: docker_push
       #   run: |
-      #     docker tag one-creation/${{ env.docker_tag }} 307126822414.dkr.ecr.eu-central-1.amazonaws.com/one-creation/${{ env.docker_tag }}
-      #     docker push 307126822414.dkr.ecr.eu-central-1.amazonaws.com/one-creation/${{ env.docker_tag }}
+      #     DOCKER=${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_ORGANIZATION }}/${{ env.docker_tag }}
+      #     docker push ${{ env.ECR }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+      #     docker tag ${{ env.docker_tag }} $DOCKER
+      #     docker push $DOCKER
+
+      - name: Push Docker Image
+        # if: github.event_name == 'push'
+        id: docker_push
+        run: |
+          docker tag ${{ env.docker_tag }} 307126822414.dkr.ecr.eu-central-1.amazonaws.com/${{ env.docker_tag }}
+          docker push 307126822414.dkr.ecr.eu-central-1.amazonaws.com/${{ env.docker_tag }}
 
       - name: Notify Status of build in Slack
         if: github.event_name == 'push' 
