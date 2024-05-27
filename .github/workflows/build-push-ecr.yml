@@ -115,15 +115,17 @@ jobs:
           context: .
           tags: |
             ${{ env.docker_tag }}
+            ${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_ORGANIZATION }}/${{ env.docker_tag }}
 
-      - name: Build Docker Image
+      - name: Push Docker Image
         id: docker_push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: |
-            ${{ env.docker_tag }}            
+            ${{ env.docker_tag }}     
+            ${{ secrets.DOCKER_REPO }}/${{ secrets.DOCKER_ORGANIZATION }}/${{ env.docker_tag }}       
 
       # - name: Push Docker Image
       #   # if: github.event_name == 'push'
