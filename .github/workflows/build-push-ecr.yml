@@ -42,6 +42,8 @@ jobs:
         id: tag_develop
         run: |
           last_tag=$(git tag | sort -V | tail -1)
+
+          echo "Last tag: ${last_tag}"
           
           if [ -z "${last_tag}" ]; then
             next_tag="0.0.1"
@@ -65,6 +67,8 @@ jobs:
         run: |
           short_sha=$(git rev-parse --short=8 HEAD)
           last_tag=$(git tag | sort -V | tail -1)
+
+          echo "Last tag: ${last_tag}"
   
           if [ $GITHUB_REF_NAME != "develop" ]; then
             if [ -z "${last_tag}" ]; then
