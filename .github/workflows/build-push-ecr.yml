@@ -112,7 +112,7 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
 
       - name: Push Docker Image to Amazon ECR
-        if: github.event_name == 'push'
+        # if: github.event_name == 'push'
         id: docker_push
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
