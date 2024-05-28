@@ -86,6 +86,7 @@ jobs:
             echo "Tag $next_tag does not exist..."
             echo "Creating tag ${next_tag}"
             git tag ${next_tag}
+            git push origin --tags
             echo "new_tag=true" >> $GITHUB_OUTPUT
           else
             echo "Tag $next_tag already exists..."
