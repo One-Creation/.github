@@ -7,7 +7,7 @@ on:
    
 jobs:
   build:
-    name: Build
+    name: BuildAndPushToECR
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -35,17 +35,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-duration-seconds: 1200
-          role-session-name: GitHubActionsOcDrmMarketplaceBuild
-     
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to ECR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ secrets.AWS_ACCOUNT }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com
-          username: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-session-name: GitHubActionsOnecreationBuild
 
       - name: Extract branch name
         id: extract_branch
@@ -104,24 +94,33 @@ jobs:
             echo "new_tag=false" >> $GITHUB_OUTPUT
           fi  
 
-          echo "docker_tag=${{ inputs.projectName }}:${next_tag}" >> $GITHUB_ENV
+          echo "docker_repository=one-creation/${{ inputs.projectName }}" >> $GITHUB_ENV
+          echo "docker_tag=${next_tag}" >> $GITHUB_ENV
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker Image
         if: github.event_name == 'pull_request'
         id: docker_build
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          tags: ${{ env.docker_tag }}
-          
-      - name: Build Docker Image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ env.docker_repository }}
+          IMAGE_TAG: ${{ env.docker_tag }}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+
+      - name: Push Docker Image to Amazon ECR
         if: github.event_name == 'push'
         id: docker_push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ env.docker_tag }}      
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ env.docker_repository }}
+          IMAGE_TAG: ${{ env.docker_tag }}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG    
 
       - name: Notify Status of build in Slack
         if: github.event_name == 'push' 
@@ -130,5 +129,5 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_COLOR: ${{ job.status }}
           SLACK_CHANNEL: pipeline-status-notification
-          SLACK_TITLE: "${{ inputs.projectName }} - TAG Number: ${{ env.DOCKER_TAG }}"
+          SLACK_TITLE: "${{ inputs.projectName }} - TAG Number: ${{ env.docker_tag }}"
           SLACK_MESSAGE : ${{ github.event.head_commit.message}}
