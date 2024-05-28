@@ -27,6 +27,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          fetch-depth: 0
+          fetch-tags: true
     
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -36,15 +38,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-duration-seconds: 1200
           role-session-name: GitHubActionsOnecreationBuild
-
-      - name: Extract branch name
-        id: extract_branch
-        shell: bash
-        run: |
-          echo "branch_name=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
         
       - name: Tagging develop
-        if: ${{ env.branch_name }} == 'develop'
+        if: github.ref_name == 'develop'
         id: tag_develop
         run: |
           last_tag=$(git tag | sort -V | tail -1)
@@ -65,6 +61,8 @@ jobs:
           fi
   
           echo "next_tag=${next_tag}" >> $GITHUB_ENV
+
+          echo "Next tag: ${next_tag}"
   
       - name: Determine Docker Tag
         id: tag
@@ -72,7 +70,7 @@ jobs:
           short_sha=$(git rev-parse --short=8 HEAD)
           last_tag=$(git tag | sort -V | tail -1)
   
-          if [ ${{ env.branch_name }} != "develop" ]; then
+          if [ $GITHUB_REF_NAME != "develop" ]; then
             if [ -z "${last_tag}" ]; then
               next_tag="0.0.1-${short_sha}"
             else
