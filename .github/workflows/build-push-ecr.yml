@@ -40,7 +40,7 @@ jobs:
           role-session-name: GitHubActionsOnecreationBuild
         
       - name: Tagging develop
-        if: github.ref_name == 'develop'
+        # if: github.ref_name == 'develop'
         id: tag_develop
         run: |
           last_tag=$(git tag | sort -V | tail -1)
