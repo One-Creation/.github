@@ -86,8 +86,10 @@ jobs:
           if [[ $? -ne 0 ]]; then
             echo "Deployment has not been successful, timeout of 10 minutes reached"
             echo "Running debug command: $kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}"
+            kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}
             exit 1
           else
             echo "Running status command: $kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}"
+            kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}
             echo "Deployment successful and ready to used in Dev :)"
           fi
