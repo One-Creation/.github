@@ -88,5 +88,6 @@ jobs:
             echo "Running debug command: $kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}"
             exit 1
           else
+            echo "Running status command: $kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}"
             echo "Deployment successful and ready to used in Dev :)"
           fi
