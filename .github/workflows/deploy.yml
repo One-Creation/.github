@@ -78,3 +78,18 @@ jobs:
           export EXTERNALSET="--set ${{ inputs.projectAlias }}.${{ inputs.projectName }}.image.tag=${{ steps.init.outputs.docker_tag }}"
           ./install.sh $RELEASE_VERSION dev01
         working-directory: oc-drm-kubernetes/helm/scripts
+      
+      - name: Wait for deployment to be ready
+        if: contains(steps.init.outputs.origin_event_name, 'push')
+        run: |
+          kubectl rollout status deployment ${{ inputs.projectName }} --timeout=600s;
+          if [[ $? -ne 0 ]]; then
+            echo "Deployment has not been successful, timeout of 10 minutes reached"
+            echo "Running debug command: $kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}"
+            kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}
+            exit 1
+          else
+            echo "Running status command: $kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}"
+            kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}
+            echo "Deployment successful and ready to used in Dev :)"
+          fi
