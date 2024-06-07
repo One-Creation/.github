@@ -81,6 +81,11 @@ jobs:
       
       - name: Wait for deployment to be ready
         if: contains(steps.init.outputs.origin_event_name, 'push')
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NAMESPACE: ${{ inputs.namespace }}
         run: |
           aws eks update-kubeconfig --name ${{ secrets.EKS_INT }} --region ${{ secrets.REGION }}
           kubectl config set-context --current --namespace=$NAMESPACE
