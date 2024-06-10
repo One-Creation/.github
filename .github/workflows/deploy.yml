@@ -91,12 +91,12 @@ jobs:
           kubectl config set-context --current --namespace=$NAMESPACE
           kubectl rollout status deployment ${{ inputs.projectName }} --timeout=600s;
           if [[ $? -ne 0 ]]; then
-            echo "Deployment has not been successful, timeout of 10 minutes reached"
-            echo "Running debug command: $kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}"
-            kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}
+            echo "### Deployment has not been successful, timeout of 10 minutes reached ❌" >> $GITHUB_STEP_SUMMARY
+            echo "Running debug command: $kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}" >> $GITHUB_STEP_SUMMARY
+            kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }} >> $GITHUB_STEP_SUMMARY
             exit 1
           else
-            echo "Running status command: $kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}"
-            kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}
-            echo "Deployment successful and ready to be used in Dev :)"
+            echo '### Deployment successful and ready to be used in Dev 🚀' >> $GITHUB_STEP_SUMMARY
+            echo 'Running status command: $kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}' >> $GITHUB_STEP_SUMMARY
+            kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }} >> $GITHUB_STEP_SUMMARY
           fi
