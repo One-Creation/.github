@@ -79,7 +79,7 @@ jobs:
         with:
           repository: One-Creation/oc-drm-test-automation
           ref: refs/heads/develop
-          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          token: ${{ secrets.ONECREATION_DEVELOPER_PAT }}
           persist-credentials: false
           path: ./oc-drm-test-automation
 
@@ -90,7 +90,7 @@ jobs:
         with:
           repository: One-Creation/oc-drm-kubernetes
           ref: refs/heads/develop
-          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          token: ${{ secrets.ONECREATION_DEVELOPER_PAT }}
           persist-credentials: false
           path: ./oc-drm-kubernetes
 
@@ -303,7 +303,7 @@ jobs:
 #         if: contains(steps.init.outputs.origin_ref,'pull') && contains( steps.init.outputs.origin_event_name, 'pull_request') &&  contains( steps.init.outputs.run_e2e, 'true')
 #         uses: peaceiris/actions-gh-pages@v3
 #         with:
-#           personal_token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+#           personal_token: ${{ secrets.ONECREATION_DEVELOPER_PAT }}
 #           github_token: ${{ secrets.GITHUB_TOKEN }}
 #           publish_branch: gh-pages
 #           publish_dir: oc-drm-test-automation/reports/allure-site
@@ -322,6 +322,6 @@ jobs:
       - name: Dispatch action to deploy project
         uses: peter-evans/repository-dispatch@v2.1.0
         with:
-          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          token: ${{ secrets.ONECREATION_DEVELOPER_PAT }}
           event-type: deploy-event
           client-payload: '{"ref": "${{  steps.init.outputs.origin_ref }}", "image": "${{  steps.init.outputs.docker_image }}", "tag": "${{  steps.init.outputs.docker_tag }}", "event_name": "${{ steps.init.outputs.origin_event_name }}"}'

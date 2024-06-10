@@ -43,7 +43,7 @@ jobs:
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
         uses: actions/checkout@v3.1.0
         with:
-          token: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          token: ${{ secrets.ONECREATION_DEVELOPER_PAT }}
     
       - name: Configure AWS Credentials
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
@@ -96,7 +96,7 @@ jobs:
           git config --global user.name 'gh-devops-bot'
           git config --global user.email 'dev-ops-bot@onecreation.com'
           mvn versions:use-releases
-          mvn release:prepare -DcheckModificationExcludeList=pom.xml -U -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"  -Dusername="gh-devops-bot" -Dpassword="${{ secrets.ONECREATION_PAT_TOKEN }}"
+          mvn release:prepare -DcheckModificationExcludeList=pom.xml -U -Dmaven.tests.skip=true -DskipTests=true -DautoResolveSnapshosts="all"  -Dusername="gh-devops-bot" -Dpassword="${{ secrets.ONECREATION_DEVELOPER_PAT }}"
           export VERSION=$(grep  -i "scm.tag=" release.properties | sed s"/scm.tag=//" | sed s"/${{ inputs.projectName }}-//")
           mvn clean install -U -Dmaven.test.skip=true -DskipTests=true
           mvn release:perform -U -Dmaven.tests.skip=true -DskipTests=true -DlocalCheckout=true
@@ -149,7 +149,7 @@ jobs:
         if: "!contains(github.event.head_commit.message,'maven-release-plugin') "
         with:
           workflow: e2e.yml
-          token: ${{ secrets.ONECREATION_PAT_TOKEN }}        
+          token: ${{ secrets.ONECREATION_DEVELOPER_PAT }}        
           wait-for-completion: true
           display-workflow-run-url: true
           ref: develop

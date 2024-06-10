@@ -18,14 +18,14 @@ jobs:
         id: dependabot-metadata
         uses: dependabot/fetch-metadata@v1.1.1
         with:
-          github-token: "${{ secrets.ONECREATION_PAT_TOKEN }}"
+          github-token: "${{ secrets.ONECREATION_DEVELOPER_PAT }}"
       # Here the PR gets approved.
       - name: Approve a PR
         run: | 
           gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ONECREATION_DEVELOPER_PAT }}
       # Finally, this sets the PR to allow auto-merging for patch and minor
       # updates if all checks pass
       - name: Enable auto-merge for Dependabot PRs
@@ -33,4 +33,4 @@ jobs:
         run: gh pr merge --auto -b "[skip ci]" -t "[skip ci]" --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.ONECREATION_PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ONECREATION_DEVELOPER_PAT }}
