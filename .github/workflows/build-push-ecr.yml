@@ -34,7 +34,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ secrets.REGION }}
-          role-to-assume: ${{ secrets.GITHUB_ACTIONS_DEV_IAM_ROLE }}
+          role-to-assume: ${{ secrets.AWS_ACTIONS_DEV_IAM_ROLE }}
           role-session-name: GitHubActionsOnecreationBuild
         
       - name: Tagging develop
