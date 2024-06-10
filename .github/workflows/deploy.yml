@@ -98,5 +98,5 @@ jobs:
           else
             echo "Running status command: $kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}"
             kubectl get pods -l app.kubernetes.io/name=${{ inputs.projectName }}
-            echo "Deployment successful and ready to used in Dev :)"
+            echo "Deployment successful and ready to be used in Dev :)"
           fi
