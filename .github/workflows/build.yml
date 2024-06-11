@@ -47,13 +47,10 @@ jobs:
     
       - name: Configure AWS Credentials
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ secrets.REGION }}
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          role-duration-seconds: 1200
-          role-session-name: GitHubActionsOcDrmMarketplaceBuild
+          role-to-assume: ${{ secrets.AWS_ACTIONS_DEV_IAM_ROLE }}
           
       - name: Get maven settings
         if: "!contains(github.event.head_commit.message,'maven-release-plugin')"
@@ -121,9 +118,6 @@ jobs:
         if: "!contains(github.event.head_commit.message,'maven-release-plugin') "
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          AWS_REGION: ${{ secrets.REGION }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |    
           test ${{ steps.release.outputs.closed_version }} && PROJECT_VERSION=${{ steps.release.outputs.closed_version }} || PROJECT_VERSION=`mvn -f ../pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout`          
           PROJECT_VERSION_BUILD="$PROJECT_VERSION"
