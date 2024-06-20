@@ -80,7 +80,7 @@ jobs:
           chmod 755 install.sh
           RELEASE_VERSION=$(echo "${{  steps.release-info.outputs.release_version  }}"  | sed 's/values-//' | sed 's/.yaml//')
           export EXTERNALSET="--set ${{ inputs.projectAlias }}.${{ inputs.projectName }}.image.tag=${{ steps.init.outputs.docker_tag }}"
-          ./install.sh $RELEASE_VERSION dev01
+          ./install.sh $RELEASE_VERSION dev01 backend onecreation
         working-directory: oc-drm-kubernetes/helm/scripts
       
       - name: Wait for deployment to be ready
